@@ -4,7 +4,7 @@ import theme from './theme/theme';
 import HomeNavbar from './components/ui/HomeNavbar';
 
 // pages
-import Home from './views/Home';
+import Home from './pages/Home';
 
 function App() {
   return (
