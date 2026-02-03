@@ -15,25 +15,25 @@ export const buttonConfig: Components<Theme>['MuiButton'] = {
   variants: [
     {
       props: { variant: 'contained', color: 'primary' },
-      style: {
-        background: '#89C96A',
-        color: '#FFF',
+      style: ({ theme }) => ({
+        background: theme.palette.primary.main,
+        color: theme.palette.primary.contrastText,
         '&:hover': {
-          background: '#7AB85B',
+          background: theme.palette.primary.dark,
         },
-      },
+      }),
     },
     {
       props: { variant: 'outlined', color: 'secondary' },
-      style: {
-        background: 'white',
-        border: '1.2px solid #6A9D50',
-        color: '#6A9D50',
+      style: ({ theme }) => ({
+        background: theme.palette.background.paper,
+        border: `1.2px solid ${theme.palette.secondary.main}`,
+        color: theme.palette.secondary.main,
         '&:hover': {
           background: 'rgba(106, 157, 80, 0.04)',
-          border: '1.2px solid #6A9D50',
+          border: `1.2px solid ${theme.palette.secondary.main}`,
         },
-      },
+      }),
     },
   ],
 };

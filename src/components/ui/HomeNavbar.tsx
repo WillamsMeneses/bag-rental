@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, Box, Button, IconButton, Avatar, Typography } from '@mui/material';
+import { AppBar, Toolbar, Box, IconButton, Avatar, Typography } from '@mui/material';
 import HoverLink from './HoverLink';
 
 function HomeNavbar() {
