@@ -1,16 +1,21 @@
 import { ThemeProvider } from '@mui/material/styles';
-import { Button, Stack } from '@mui/material';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import theme from './theme/theme';
+import HomeNavbar from './components/ui/HomeNavbar';
+
+// pages
+import Home from './views/Home';
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <div style={{ padding: '40px' }}>
-        <Stack spacing={2} direction="row">
-          <Button variant="contained" color="primary">Primary Button</Button>
-          <Button variant="outlined" color="secondary">Secondary Button</Button>
-        </Stack>
-      </div>
+      <BrowserRouter>
+        <HomeNavbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+
+        </Routes>
+      </BrowserRouter>
     </ThemeProvider>
   );
 }
