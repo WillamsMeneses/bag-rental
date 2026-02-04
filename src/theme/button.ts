@@ -10,6 +10,9 @@ export const buttonConfig: Components<Theme>['MuiButton'] = {
       lineHeight: '24px',
       fontFamily: '"Plus Jakarta Sans", sans-serif',
       textTransform: 'none',
+      '&.Mui-disabled': {
+        color: '#FFFFFF ',
+      },
     },
   },
   variants: [
