@@ -4,7 +4,7 @@ import CloseIcon from '../icons/CloseIcon';
 interface GenericDialogProps {
   open: boolean;
   onClose: () => void;
-  title?: string;
+  title?: React.ReactNode;
   children: React.ReactNode;
   actions?: React.ReactNode;
   showCloseButton?: boolean;
@@ -28,24 +28,38 @@ export const GenericDialog = ({
       fullWidth
     >
       {title && (
-        <DialogTitle>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
+        <DialogTitle sx={{ p: 0, position: 'relative' }}>
+          <Box sx={{ width: '100%' }}>
             {title}
-            {showCloseButton && (
-              <IconButton onClick={onClose} size="small">
-                <CloseIcon />
-              </IconButton>
-            )}
           </Box>
+          {showCloseButton && (
+            <IconButton 
+              onClick={onClose} 
+              size="small"
+              sx={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                '&:hover': {
+                  color: 'black'
+                },
+                width: 32,
+                height: 32,
+                color: 'white'
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          )}
         </DialogTitle>
       )}
       
-      <DialogContent>
+      <DialogContent sx={{ p: 3}}>
         {children}
       </DialogContent>
 
       {actions && (
-        <DialogActions>
+        <DialogActions sx={{ p: 3, pt: 0 }}>
           {actions}
         </DialogActions>
       )}

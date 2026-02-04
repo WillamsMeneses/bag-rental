@@ -2,12 +2,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AxiosError } from 'axios';
 import { useAuthStore } from '@/stores/authStore';
+import { useAuthFlowStore } from '@/stores/authFlowStore';
 import { useToastStore } from '@/stores/toastStore';
 import type { AuthFormData, LoginFormData, RegisterFormData } from '@/schemas/authSchema';
 import { authService } from '@/services/auth.service';
-
-
-type AuthStep = 'email' | 'login' | 'register';
 
 interface ErrorResponse {
   success: boolean;
@@ -18,20 +16,23 @@ interface ErrorResponse {
 
 export const useAuth = () => {
   const navigate = useNavigate();
-  const { setTokens, setEmail } = useAuthStore();
+  const { setTokens } = useAuthStore();
+  const { 
+    currentStep, 
+    currentEmail, 
+    setCurrentStep, 
+    setCurrentEmail,
+    resetAuthFlow 
+  } = useAuthFlowStore();
   const { success, error, info } = useToastStore();
   const [isLoading, setIsLoading] = useState(false);
-  const [currentStep, setCurrentStep] = useState<AuthStep>('email');
-  const [currentEmail, setCurrentEmail] = useState<string>('');
 
   const handleCheckEmail = async (data: AuthFormData) => {
     setIsLoading(true);
     try {
       const response = await authService.checkEmail(data);
       setCurrentEmail(data.email);
-      setEmail(data.email);
 
-      // Acceder correctamente a response.data.exists
       if (response.data.exists) {
         setCurrentStep('login');
         info('Please enter your password');
@@ -52,9 +53,9 @@ export const useAuth = () => {
     try {
       const response = await authService.login(currentEmail, data);
       
-      // Acceder correctamente a response.data
       setTokens(response.data.access_token, response.data.refresh_token);
       success(response.message || 'Login successful!');
+      resetAuthFlow();
       navigate('/dashboard');
     } catch (err) {
       const axiosError = err as AxiosError<ErrorResponse>;
@@ -69,9 +70,9 @@ export const useAuth = () => {
     try {
       const response = await authService.register(currentEmail, data);
       
-      // Acceder correctamente a response.data
       setTokens(response.data.access_token, response.data.refresh_token);
       success(response.message || 'Registration successful!');
+      resetAuthFlow();
       navigate('/dashboard');
     } catch (err) {
       const axiosError = err as AxiosError<ErrorResponse>;
@@ -81,11 +82,6 @@ export const useAuth = () => {
     }
   };
 
-  const resetAuth = () => {
-    setCurrentStep('email');
-    setCurrentEmail('');
-  };
-
   return {
     isLoading,
     currentStep,
@@ -93,6 +89,6 @@ export const useAuth = () => {
     handleCheckEmail,
     handleLogin,
     handleRegister,
-    resetAuth,
+    resetAuth: resetAuthFlow,
   };
 };

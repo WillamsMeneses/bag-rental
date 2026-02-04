@@ -5,7 +5,7 @@ export const authSchema = z.object({
   email: z
     .string()
     .min(1, 'Email is required')
-    .email('Invalid email address'),
+    .pipe(z.string().email('Invalid email address')),
 });
 
 // Schema para login (solo password)
