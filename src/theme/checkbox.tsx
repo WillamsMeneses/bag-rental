@@ -4,7 +4,7 @@ export const checkboxConfig: Components<Theme>['MuiCheckbox'] = {
   styleOverrides: {
     root: ({ theme }) => ({
       color: theme.palette.grey[500],
-      padding: '8px',
+      padding: 0, // Elimina el padding
       
       '&.Mui-checked': {
         color: theme.palette.primary.main,
@@ -13,6 +13,14 @@ export const checkboxConfig: Components<Theme>['MuiCheckbox'] = {
       '& .MuiSvgIcon-root': {
         fontSize: '30px',
       },
+      
+      // Elimina el efecto hover circular
+      '&:hover': {
+        backgroundColor: 'transparent',
+      },
     }),
+  },
+  defaultProps: {
+    disableRipple: true, // Elimina el efecto ripple al hacer click
   },
 };

@@ -48,7 +48,8 @@ export const typographyConfig: TypographyVariantsOptions = {
     fontFamily: '"Plus Jakarta Sans", sans-serif',
     fontSize: '12px',
     fontWeight: 700,
-    lineHeight: '20px'
+    lineHeight: '20px',
+    color: '#4E4E4E'
   },
 
   subtitle1: {
@@ -70,10 +71,17 @@ export const typographyConfig: TypographyVariantsOptions = {
 
   body1: {
     fontFamily: '"Plus Jakarta Sans", sans-serif',
+    fontSize: '16px',
+    fontWeight: 500,
+    lineHeight: '24px'
   },
 
   body2: {
     fontFamily: '"Plus Jakarta Sans", sans-serif',
+    fontSize: '14px',
+    fontWeight: 500,
+    lineHeight: '20px',
+    color: '#737373'
   },
 
   button: {
@@ -86,6 +94,10 @@ export const typographyConfig: TypographyVariantsOptions = {
 
   caption: {
     fontFamily: '"Plus Jakarta Sans", sans-serif',
+    fontSize: '12px',
+    fontWeight: 400,
+    lineHeight: '20px',
+    color: '#4E4E4E'
   },
 
   overline: {

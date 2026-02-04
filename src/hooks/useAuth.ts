@@ -53,7 +53,8 @@ export const useAuth = () => {
     try {
       const response = await authService.login(currentEmail, data);
       
-      setTokens(response.data.access_token, response.data.refresh_token);
+      // ✅ Corregido: usa accessToken de response.data (no access_token)
+      setTokens(response.data.accessToken);
       success(response.message || 'Login successful!');
       resetAuthFlow();
       navigate('/dashboard');
@@ -70,7 +71,8 @@ export const useAuth = () => {
     try {
       const response = await authService.register(currentEmail, data);
       
-      setTokens(response.data.access_token, response.data.refresh_token);
+      // ✅ Corregido: usa accessToken de response.data (no access_token)
+      setTokens(response.data.accessToken);
       success(response.message || 'Registration successful!');
       resetAuthFlow();
       navigate('/dashboard');

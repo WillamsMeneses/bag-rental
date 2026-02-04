@@ -18,7 +18,7 @@ export interface CheckEmailData {
 }
 
 export interface AuthData {
-  access_token: string;
+  accessToken: string;
   refresh_token: string;
   user: {
     id: string;

@@ -33,7 +33,7 @@ const AuthEmailForm = () => {
 
         <form id="auth-form" onSubmit={handleSubmit(handleCheckEmail)}>
           <Box>
-            <Typography variant="h6" sx={{ mb: 0.5, fontWeight: 500 }}>
+            <Typography variant="h6" sx={{ mb: '5px' }}>
               Email
             </Typography>
             <Controller

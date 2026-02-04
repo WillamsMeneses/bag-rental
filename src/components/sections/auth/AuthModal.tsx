@@ -1,5 +1,5 @@
 import { GenericDialog } from '@/components/ui/GenericDialog';
-import { Box, Button } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { useState } from 'react';
 import AuthTitleModal from './AuthTitleModal';
 import ArrowRightIcon from '@/components/icons/ArrowRightIcon';
@@ -7,13 +7,14 @@ import { useAuth } from '@/hooks/useAuth';
 import AuthEmailForm from './AuthEmailForm';
 import AuthLoginForm from './AuthLoginForm';
 import AuthRegisterForm from './AuthRegisterForm';
+import HoverLink from '@/components/ui/HoverLink';
 
 const AuthModal = () => {
   const [open, setOpen] = useState(false);
   const { currentStep, isLoading, resetAuth } = useAuth();
 
   const handleOpen = () => setOpen(true);
-  
+
   const handleClose = () => {
     setOpen(false);
     // Resetear el estado cuando se cierra el modal
@@ -37,14 +38,14 @@ const AuthModal = () => {
   // Determinar el texto del botón
   const getButtonText = () => {
     if (isLoading) return 'Processing...';
-    
+
     switch (currentStep) {
       case 'email':
         return 'Continue';
       case 'login':
         return 'Login';
       case 'register':
-        return 'Register';
+        return 'Create password';
       default:
         return 'Continue';
     }
@@ -63,7 +64,8 @@ const AuthModal = () => {
         showCloseButton
         maxWidth="xs"
         actions={
-          <Box sx={{ display: 'flex', width: '100%' }}>
+          <Box sx={{ display: 'flex', width: '100%', flexDirection: 'column', gap: '24px' }}>
+
             <Button
               type="submit"
               form="auth-form"
@@ -73,15 +75,53 @@ const AuthModal = () => {
               sx={{ flex: 1 }}
             >
               {getButtonText()}
-              <Box sx={{ mt: '7px', ml: '5px' }}>
+              <Box sx={{ mt: '5px', ml: '5px' }}>
                 <ArrowRightIcon />
               </Box>
             </Button>
-          </Box>
+
+            {currentStep == 'login' && (
+              <>
+                < Box sx={{
+                  display: 'block',
+                }}>
+                  <Typography variant='body2' component="span">I have read and accepted the</Typography>
+                  {' '}
+                  <HoverLink to={"/dashboard"} underlineColor='#595959' alwaysUnderline>
+                    <Typography variant='body2' component="span" sx={{
+                      color: '#595959',
+                      fontWeight: '700',
+                    }}>Terms and Conditions</Typography>
+                  </HoverLink>
+                  {' '}
+                  <Typography variant='body2' component="span"> of <br></br> Bag Chatter's </Typography>
+                  {' '}
+                  <HoverLink to={"/dashboard"} underlineColor='#595959' alwaysUnderline>
+                    <Typography variant='body2' component="span" sx={{
+                      color: '#595959',
+                      fontWeight: '700',
+                    }}>Privacy Policy.</Typography>
+                  </HoverLink>
+                </Box>
+                <Box sx={{
+                  mb: '16px'
+                }}>
+                  <HoverLink to={"/dashboard"} underlineColor='transparent' alwaysUnderline={false}>
+                    <Typography variant='body1' sx={{
+                      color: '#6A9D50',
+                      fontWeight: '600',
+                    }}>Forgot your password?</Typography>
+                  </HoverLink>
+                </Box>
+
+              </>
+            )}
+
+          </Box >
         }
       >
         {renderForm()}
-      </GenericDialog>
+      </GenericDialog >
     </>
   );
 };
