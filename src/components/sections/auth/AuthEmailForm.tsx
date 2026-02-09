@@ -5,7 +5,6 @@ import { Box, Button, Divider, TextField, Typography } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import GoogleIcon from '@assets/svg/google-icon.svg'
-import FacebookIcon from '@assets/svg/facebook-icon.svg'
 import { buildGoogleAuthUrl } from '@/config/oauth.config';
 
 interface AuthEmailFormProps {
@@ -83,14 +82,6 @@ const AuthEmailForm = ({ onValidityChange }: AuthEmailFormProps) => {
                         marginRight: '10px'
                     }}></img>
                     Continue with Google
-                </Button>
-                <Button variant='outlined' sx={{
-                    color: '#595959'
-                }}>
-                    <img src={FacebookIcon} style={{
-                        marginRight: '10px'
-                    }}></img>
-                    Continue with Facebook
                 </Button>
             </Box>
         </>
