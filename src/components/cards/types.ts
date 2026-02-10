@@ -22,8 +22,11 @@ export interface RentalCardProps extends BaseCardProps {
 }
 
 export interface FavoriteCardProps extends BaseCardProps {
+  gender: 'male' | 'female';
   rating?: number;
-  location?: string;
+  city?: string;
+  state?: string;
   isFavorited: boolean;
   onToggleFavorite?: (id: string) => void;
+  onClick?: (id: string) => void;
 }

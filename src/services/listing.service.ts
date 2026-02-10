@@ -24,13 +24,23 @@ const transformClub = (club: ClubApiResponse): Club => {
  * TypeORM returns DECIMAL fields as strings to avoid precision loss
  * We convert them to numbers for frontend use
  */
-const transformListing = (listing: BagListingApiResponse): BagListing => {
+export const transformListing = (listing: BagListingApiResponse): BagListing => {
   return {
     ...listing,
     pricePerDay: Number(listing.pricePerDay),
     clubs: listing.clubs?.map(transformClub) || [],
   };
 };
+
+/**
+ * Backend response wrapper type
+ */
+interface BackendResponse<T> {
+  success: boolean;
+  data: T;
+  timestamp: string;
+  path: string;
+}
 
 export const listingService = {
   /**
@@ -46,15 +56,22 @@ export const listingService = {
   },
 
   /**
+   * Get all published listings (for dashboard)
+   */
+  getAllListings: async (): Promise<ListingsResponse> => {
+    const response = await api.get<BackendResponse<BagListingApiResponse[]>>('/listings');
+    return {
+      success: true,
+      message: 'All listings retrieved successfully',
+      data: response.data.data.map(transformListing),
+    };
+  },
+
+  /**
    * Get all listings for the current user
    */
   getMyListings: async (): Promise<ListingsResponse> => {
-    const response = await api.get<{
-      success: boolean;
-      data: BagListingApiResponse[];
-      timestamp: string;
-      path: string;
-    }>('/listings/my-listings');
+    const response = await api.get<BackendResponse<BagListingApiResponse[]>>('/listings/my-listings');
     return {
       success: true,
       message: 'Listings retrieved successfully',

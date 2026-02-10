@@ -12,17 +12,14 @@ interface ErrorResponse {
   path: string;
 }
 
-export const useListings = () => {
+export const useMyListings = () => {
   const navigate = useNavigate();
   const { success, error } = useToastStore();
   const [listings, setListings] = useState<BagListing[]>([]);
   const [currentListing, setCurrentListing] = useState<BagListing | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-
-  /**
-   * Fetch all user listings
-   */
+ 
   const fetchMyListings = async () => {
     setIsLoading(true);
     try {
@@ -126,15 +123,22 @@ export const useListings = () => {
     fetchMyListings();
   }, []);
 
+  //  useEffect(() => {
+  //   fetchAllListings();
+  // }, []);
+
   return {
     // State
     listings,
     currentListing,
     isLoading,
     isCreating,
+    // allListings,
+    // isLoadingAll,
 
     // Actions
     fetchMyListings,
+    // fetchAllListings,
     fetchListingById,
     createListing,
     handleEditListing,

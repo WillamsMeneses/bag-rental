@@ -8,6 +8,7 @@ export { CardBadge } from './CardBadge';
 
 // Variants
 export { ListingCard } from './ListingCard';
+export { FavoriteCard } from './FavoriteCard'; 
 
 // Types
 export type {

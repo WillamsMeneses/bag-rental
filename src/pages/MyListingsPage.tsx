@@ -11,7 +11,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
 import { ListingCard } from '@/components/cards';
-import { useListings } from '@/hooks/useListings';
+import { useMyListings } from '@/hooks/useMyListings';
 
 export const MyListingsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ export const MyListingsPage: React.FC = () => {
     handleEditListing,
     handlePauseListing,
     handleDeleteListing,
-  } = useListings();
+  } = useMyListings();
 
   const handleCreateNew = () => {
     navigate('/listings/create');
