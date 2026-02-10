@@ -4,6 +4,7 @@ import { buttonConfig } from './button';
 import { textFieldConfig } from './textfield';
 import { checkboxConfig } from './checkbox';
 import { paletteConfig } from './palette';
+import { chipConfig } from './chip';
 
 const theme = createTheme({
   palette: paletteConfig,
@@ -13,6 +14,7 @@ const theme = createTheme({
     MuiButton: buttonConfig,
     MuiTextField: textFieldConfig,
     MuiCheckbox: checkboxConfig,
+    MuiChip: chipConfig,
   },
 });
 
