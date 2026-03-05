@@ -116,6 +116,7 @@ export interface BagListing {
   clubs: Club[];
   createdAt: string;
   updatedAt: string;
+  isFavorite?: boolean;
 }
 
 // DTOs for creating listings
@@ -221,4 +222,16 @@ export interface BagListingApiResponse {
   clubs: ClubApiResponse[];
   createdAt: string;
   updatedAt: string;
+  isFavorite?: boolean;
+}
+
+export interface PaginatedListingsResponse {
+  data: BagListingApiResponse[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasMore: boolean;
+  };
 }

@@ -5,10 +5,9 @@ import HomeNavbar from './components/ui/HomeNavbar';
 import GlobalToast from './components/ui/GlobalToast';
 
 // pages
-import HomePage from './pages/HomePage';
 import AuthCallbackPage from './pages/AuthCallbackPage';
 import { MyListingsPage } from './pages/MyListingsPage';
-import { DashboardPage } from './pages/DashboardPage';
+import { HomePage } from './pages/HomePage';
 
 function App() {
   return (
@@ -19,7 +18,6 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
           <Route path="/my-listings" element={<MyListingsPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
         </Routes>
         <GlobalToast />
       </BrowserRouter>

@@ -4,9 +4,8 @@ import type {
   ClubApiResponse,
   Club,
   CreateListingDto,
-  ListingResponse,
-  ListingsResponse,
 } from '@/types/listing.types';
+import type { PaginationParams } from '@/types/pagination.types';
 import { api } from './api';
 
 /**
@@ -21,111 +20,126 @@ const transformClub = (club: ClubApiResponse): Club => {
 
 /**
  * Transform listing data from API
- * TypeORM returns DECIMAL fields as strings to avoid precision loss
- * We convert them to numbers for frontend use
  */
 export const transformListing = (listing: BagListingApiResponse): BagListing => {
   return {
     ...listing,
     pricePerDay: Number(listing.pricePerDay),
     clubs: listing.clubs?.map(transformClub) || [],
+    isFavorite: listing.isFavorite || false,
   };
 };
 
 /**
- * Backend response wrapper type
+ * Backend response wrapper
  */
-interface BackendResponse<T> {
+interface BackendPaginatedResponse {
   success: boolean;
-  data: T;
+  data: {
+    data: BagListingApiResponse[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+      hasMore: boolean;
+    };
+  };
   timestamp: string;
   path: string;
 }
 
 export const listingService = {
   /**
-   * Create a new bag listing
+   * Get all published listings (PUBLIC - with optional auth)
    */
-  createListing: async (data: CreateListingDto): Promise<ListingResponse> => {
-    const response = await api.post<BagListingApiResponse>('/listings', data);
+  getAllListings: async (
+    params?: PaginationParams,
+  ): Promise<{
+    data: BagListing[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+      hasMore: boolean;
+    };
+  }> => {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+
+    const url = `/listings${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    const response = await api.get<BackendPaginatedResponse>(url);
+
     return {
-      success: true,
-      message: 'Listing created successfully',
-      data: transformListing(response.data),
+      data: response.data.data.data.map(transformListing),
+      pagination: response.data.data.pagination,
     };
   },
 
   /**
-   * Get all published listings (for dashboard)
+   * Get my listings (PRIVATE)
    */
-  getAllListings: async (): Promise<ListingsResponse> => {
-    const response = await api.get<BackendResponse<BagListingApiResponse[]>>('/listings');
+  getMyListings: async (
+    params?: PaginationParams,
+  ): Promise<{
+    data: BagListing[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+      hasMore: boolean;
+    };
+  }> => {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+
+    const url = `/listings/my-listings${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    const response = await api.get<BackendPaginatedResponse>(url);
+
     return {
-      success: true,
-      message: 'All listings retrieved successfully',
-      data: response.data.data.map(transformListing),
+      data: response.data.data.data.map(transformListing),
+      pagination: response.data.data.pagination,
     };
   },
 
   /**
-   * Get all listings for the current user
+   * Get listing by ID
    */
-  getMyListings: async (): Promise<ListingsResponse> => {
-    const response = await api.get<BackendResponse<BagListingApiResponse[]>>('/listings/my-listings');
-    return {
-      success: true,
-      message: 'Listings retrieved successfully',
-      data: response.data.data.map(transformListing),
-    };
-  },
-
-  /**
-   * Get a single listing by ID
-   */
-  getListingById: async (id: string): Promise<ListingResponse> => {
+  getListingById: async (id: string): Promise<BagListing> => {
     const response = await api.get<BagListingApiResponse>(`/listings/${id}`);
-    return {
-      success: true,
-      message: 'Listing retrieved successfully',
-      data: transformListing(response.data),
-    };
+    return transformListing(response.data);
   },
 
   /**
-   * Update a listing (placeholder for future implementation)
+   * Create listing
    */
-  updateListing: async (
-    id: string,
-    data: Partial<CreateListingDto>
-  ): Promise<ListingResponse> => {
-    const response = await api.patch<BagListingApiResponse>(`/listings/${id}`, data);
-    return {
-      success: true,
-      message: 'Listing updated successfully',
-      data: transformListing(response.data),
-    };
+  createListing: async (data: CreateListingDto): Promise<BagListing> => {
+    const response = await api.post<BagListingApiResponse>('/listings', data);
+    return transformListing(response.data);
   },
 
   /**
-   * Delete a listing (placeholder for future implementation)
+   * Toggle listing status
+   */
+  toggleListingStatus: async (id: string): Promise<BagListing> => {
+    const response = await api.patch<BagListingApiResponse>(
+      `/listings/${id}/toggle-status`,
+    );
+    return transformListing(response.data);
+  },
+
+  /**
+   * Delete listing
    */
   deleteListing: async (id: string): Promise<{ success: boolean; message: string }> => {
     await api.delete(`/listings/${id}`);
     return {
       success: true,
       message: 'Listing deleted successfully',
-    };
-  },
-
-  /**
-   * Pause/unpause a listing (placeholder for future implementation)
-   */
-  toggleListingStatus: async (id: string): Promise<ListingResponse> => {
-    const response = await api.patch<BagListingApiResponse>(`/listings/${id}/toggle-status`);
-    return {
-      success: true,
-      message: 'Listing status updated successfully',
-      data: transformListing(response.data),
     };
   },
 };

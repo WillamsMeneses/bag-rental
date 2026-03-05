@@ -57,7 +57,7 @@ export const useAuth = () => {
       setTokens(response.data.accessToken);
       success(response.message || 'Login successful!');
       resetAuthFlow();
-      navigate('/dashboard');
+      navigate('/');
     } catch (err) {
       const axiosError = err as AxiosError<ErrorResponse>;
       error(axiosError.response?.data?.message || 'Invalid credentials');

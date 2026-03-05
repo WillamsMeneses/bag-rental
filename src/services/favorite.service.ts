@@ -1,14 +1,8 @@
-import type {
-  BagListingApiResponse,
-} from '@/types/listing.types';
-import type {
-  ToggleFavoriteResponse,
-  FavoriteIdsResponse,
-  FavoritesResponse,
-} from '@/types/favorite.types';
+//TODO: Revisar esto porque no lo estoy usando en una vista
+import type { BagListing, BagListingApiResponse } from '@/types/listing.types';
+import type { PaginationParams } from '@/types/pagination.types';
+import type { ToggleFavoriteResponse } from '@/types/favorite.types';
 import { api } from './api';
-
-// Reutilizar la función transformListing de listing.service
 import { transformListing } from './listing.service';
 
 export const favoriteService = {
@@ -25,22 +19,35 @@ export const favoriteService = {
   },
 
   /**
-   * Get all user favorites
+   * Get user favorites WITH PAGINATION
    */
-  getUserFavorites: async (): Promise<FavoritesResponse> => {
-    const response = await api.get<BagListingApiResponse[]>('/favorites');
+  getUserFavorites: async (
+    params?: PaginationParams,
+  ): Promise<{
+    data: BagListing[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+      hasMore: boolean;
+    };
+  }> => {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+
+    const url = `/favorites${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    const response = await api.get<{
+      data: BagListingApiResponse[];
+      pagination: any;
+    }>(url);
+
     return {
-      success: true,
-      message: 'Favorites retrieved successfully',
-      data: response.data.map(transformListing),
+      data: response.data.data.map(transformListing),
+      pagination: response.data.pagination,
     };
   },
 
-  /**
-   * Get favorite listing IDs
-   */
-  getFavoriteIds: async (): Promise<string[]> => {
-    const response = await api.get<FavoriteIdsResponse>('/favorites/ids');
-    return response.data.favoriteIds;
-  },
+  // ELIMINAR getFavoriteIds() porque ya no es necesario
 };
