@@ -55,7 +55,7 @@ export const paletteConfig: PaletteOptions = {
     disabled: '#A6A6A6',   // Gray-scale-500
   },
   background: {
-    default: '#FAFAFA',
+    default: '#FFFFFF',
     paper: '#FFFFFF',
   },
   divider: '#BFBFBF',

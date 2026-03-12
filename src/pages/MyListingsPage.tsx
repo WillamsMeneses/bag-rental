@@ -1,20 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
-  Container,
   Typography,
   Grid,
   CircularProgress,
   Button,
-  Stack,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
 import { ListingCard } from '@/components/cards';
 import { useMyListings } from '@/hooks/useMyListings';
+import PageHeader from '@/components/ui/PageHeader';
 
 export const MyListingsPage: React.FC = () => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState(0);
   const {
     listings,
     isLoading,
@@ -29,86 +31,61 @@ export const MyListingsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-          <CircularProgress />
-        </Box>
-      </Container>
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+        <CircularProgress />
+      </Box>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Header */}
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        sx={{ mb: 4 }}
-      >
-        <Typography variant="h4" component="h1" fontWeight={700}>
-          My Listings
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleCreateNew}
-          sx={{
-            borderRadius: 2,
-            textTransform: 'none',
-            px: 3,
-          }}
-        >
-          Publish
-        </Button>
-      </Stack>
+    <Box>
+      <PageHeader
+        title="My Listings"
+        action={
+          <Button variant="contained" startIcon={<AddIcon />} onClick={handleCreateNew}
+            sx={{ borderRadius: 2, textTransform: 'none', px: 3 }}>
+            Publish
+          </Button>
+        }
+      />
 
-      {/* Tabs (Active/Rented/Paused) */}
-      <Stack
-        direction="row"
-        spacing={3}
+      {/* Tabs */}
+      <Tabs
+        value={activeTab}
+        onChange={(_, newValue) => setActiveTab(newValue)}
         sx={{
-          borderBottom: 1,
-          borderColor: 'divider',
           mb: 4,
+          '& .MuiTabs-indicator': {
+            backgroundColor: 'primary.main',
+          },
+          '& .MuiTabs-root': {
+            boxShadow: 'none',
+          },
+          '& .MuiTab-root': {
+            textTransform: 'none',
+            fontWeight: 500,
+            color: 'text.secondary',
+            fontSize: '1rem',
+            p: 0,
+            mr: 4,
+            minWidth: 'unset',
+            '&.Mui-selected': {
+              color: 'text.primary',
+              fontWeight: 600,
+            },
+          },
+          '& .MuiTabs-flexContainer': {
+            gap: 0,
+          },
+        }}
+        TabIndicatorProps={{
+          style: { bottom: 0 }
         }}
       >
-        <Button
-          sx={{
-            textTransform: 'none',
-            fontWeight: 600,
-            color: 'primary.main',
-            borderBottom: 2,
-            borderColor: 'primary.main',
-            borderRadius: 0,
-            pb: 1,
-          }}
-        >
-          Active Listings
-        </Button>
-        <Button
-          sx={{
-            textTransform: 'none',
-            fontWeight: 500,
-            color: 'text.secondary',
-            borderRadius: 0,
-            pb: 1,
-          }}
-        >
-          Rented Now
-        </Button>
-        <Button
-          sx={{
-            textTransform: 'none',
-            fontWeight: 500,
-            color: 'text.secondary',
-            borderRadius: 0,
-            pb: 1,
-          }}
-        >
-          Paused Listings
-        </Button>
-      </Stack>
+        <Tab label="Active Listings" disableRipple />
+        <Tab label="Rented Now" disableRipple />
+        <Tab label="Paused Listings" disableRipple />
+      </Tabs>
 
       {/* Empty State */}
       {listings.length === 0 && (
@@ -129,11 +106,7 @@ export const MyListingsPage: React.FC = () => {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={handleCreateNew}
-            sx={{
-              borderRadius: 2,
-              textTransform: 'none',
-              px: 4,
-            }}
+            sx={{ borderRadius: 2, textTransform: 'none', px: 4 }}
           >
             Create Listing
           </Button>
@@ -144,7 +117,7 @@ export const MyListingsPage: React.FC = () => {
       {listings.length > 0 && (
         <Grid container spacing={3}>
           {listings.map((listing) => (
-            <Grid size={{ xs: 12, md: 4, sm: 6, lg: 3 }} key={listing.id}>
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={listing.id}>
               <ListingCard
                 id={listing.id}
                 title={listing.title}
@@ -159,8 +132,7 @@ export const MyListingsPage: React.FC = () => {
             </Grid>
           ))}
         </Grid>
-        
       )}
-    </Container>
+    </Box>
   );
 };
