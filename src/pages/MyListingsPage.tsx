@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { ListingCard } from '@/components/cards';
 import { useMyListings } from '@/hooks/useMyListings';
 import PageHeader from '@/components/ui/PageHeader';
+import { ListingStatus } from '@/types/listing.types';
 
 export const MyListingsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -23,10 +24,22 @@ export const MyListingsPage: React.FC = () => {
     handleEditListing,
     handlePauseListing,
     handleDeleteListing,
+    fetchMyListings
   } = useMyListings();
 
   const handleCreateNew = () => {
     navigate('/listings/create');
+  };
+
+  const TAB_STATUS: ListingStatus[] = [
+    ListingStatus.ACTIVE,   // tab 0 - Active Listings
+    ListingStatus.RENTED,   // tab 1 - Rented Now  ← estaba PAUSED
+    ListingStatus.PAUSED,   // tab 2 - Paused Listings
+  ];
+
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+    fetchMyListings(1, TAB_STATUS[newValue]);
   };
 
   if (isLoading) {
@@ -52,39 +65,26 @@ export const MyListingsPage: React.FC = () => {
       {/* Tabs */}
       <Tabs
         value={activeTab}
-        onChange={(_, newValue) => setActiveTab(newValue)}
+        // onChange={(_, newValue) => setActiveTab(newValue)}
+        onChange={handleTabChange}
         sx={{
           mb: 4,
           '& .MuiTabs-indicator': {
             backgroundColor: 'primary.main',
           },
-          '& .MuiTabs-root': {
-            boxShadow: 'none',
-          },
           '& .MuiTab-root': {
-            textTransform: 'none',
-            fontWeight: 500,
-            color: 'text.secondary',
-            fontSize: '1rem',
             p: 0,
             mr: 4,
             minWidth: 'unset',
             '&.Mui-selected': {
               color: 'text.primary',
-              fontWeight: 600,
             },
           },
-          '& .MuiTabs-flexContainer': {
-            gap: 0,
-          },
-        }}
-        TabIndicatorProps={{
-          style: { bottom: 0 }
         }}
       >
-        <Tab label="Active Listings" disableRipple />
-        <Tab label="Rented Now" disableRipple />
-        <Tab label="Paused Listings" disableRipple />
+        <Tab label={<Typography variant="subtitle1">Active Listings</Typography>} disableRipple />
+        <Tab label={<Typography variant="subtitle1">Rented Now</Typography>} disableRipple />
+        <Tab label={<Typography variant="subtitle1">Paused Listings</Typography>} disableRipple />
       </Tabs>
 
       {/* Empty State */}

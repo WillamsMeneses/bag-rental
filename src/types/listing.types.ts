@@ -185,6 +185,20 @@ export interface ListingsResponse {
   data: BagListing[];
 }
 
+export const ListingStatus = {
+  ACTIVE: 'active',
+  PAUSED: 'paused',
+  RENTED: 'rented',
+} as const;
+
+export type ListingStatus = typeof ListingStatus[keyof typeof ListingStatus];
+
+export interface ListingPaginationParams {
+  page?: number;
+  limit?: number;
+  status?: ListingStatus;
+}
+
 export interface ClubApiResponse {
   id: string;
   bagListingId: string;

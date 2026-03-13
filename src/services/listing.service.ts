@@ -4,6 +4,7 @@ import type {
   ClubApiResponse,
   Club,
   CreateListingDto,
+  ListingPaginationParams,
 } from '@/types/listing.types';
 import type { PaginationParams } from '@/types/pagination.types';
 import { api } from './api';
@@ -82,7 +83,7 @@ export const listingService = {
    * Get my listings (PRIVATE)
    */
   getMyListings: async (
-    params?: PaginationParams,
+    params?: ListingPaginationParams,
   ): Promise<{
     data: BagListing[];
     pagination: {
@@ -96,6 +97,7 @@ export const listingService = {
     const queryParams = new URLSearchParams();
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.status) queryParams.append('status', params.status); 
 
     const url = `/listings/my-listings${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
     const response = await api.get<BackendPaginatedResponse>(url);
