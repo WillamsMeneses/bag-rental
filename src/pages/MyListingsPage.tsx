@@ -3,7 +3,6 @@ import {
   Box,
   Typography,
   Grid,
-  CircularProgress,
   Button,
   Tabs,
   Tab,
@@ -14,6 +13,8 @@ import { ListingCard } from '@/components/cards';
 import { useMyListings } from '@/hooks/useMyListings';
 import PageHeader from '@/components/ui/PageHeader';
 import { ListingStatus } from '@/types/listing.types';
+import { LoadingState } from '@/components/ui/LoadingState';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export const MyListingsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -21,10 +22,11 @@ export const MyListingsPage: React.FC = () => {
   const {
     listings,
     isLoading,
+    isTabLoading,
     handleEditListing,
     handlePauseListing,
     handleDeleteListing,
-    fetchMyListings
+    fetchMyListingsByTab,
   } = useMyListings();
 
   const handleCreateNew = () => {
@@ -36,18 +38,19 @@ export const MyListingsPage: React.FC = () => {
     ListingStatus.RENTED,   // tab 1 - Rented Now  ← estaba PAUSED
     ListingStatus.PAUSED,   // tab 2 - Paused Listings
   ];
+  const TAB_LABELS: Record<ListingStatus, string> = {
+    [ListingStatus.ACTIVE]: 'active listings',
+    [ListingStatus.RENTED]: 'rented listings',
+    [ListingStatus.PAUSED]: 'paused listings',
+  };
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
-    fetchMyListings(1, TAB_STATUS[newValue]);
+    fetchMyListingsByTab(1, TAB_STATUS[newValue]); // ← usa el nuevo
   };
 
   if (isLoading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-        <CircularProgress />
-      </Box>
-    );
+    return <LoadingState message="Loading your listings..." />;
   }
 
   return (
@@ -65,7 +68,6 @@ export const MyListingsPage: React.FC = () => {
       {/* Tabs */}
       <Tabs
         value={activeTab}
-        // onChange={(_, newValue) => setActiveTab(newValue)}
         onChange={handleTabChange}
         sx={{
           mb: 4,
@@ -87,34 +89,22 @@ export const MyListingsPage: React.FC = () => {
         <Tab label={<Typography variant="subtitle1">Paused Listings</Typography>} disableRipple />
       </Tabs>
 
-      {/* Empty State */}
-      {listings.length === 0 && (
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          minHeight="50vh"
-        >
-          <Typography variant="h6" color="text.secondary" gutterBottom>
-            No listings yet
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Create your first listing to start renting your golf clubs
-          </Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleCreateNew}
-            sx={{ borderRadius: 2, textTransform: 'none', px: 4 }}
-          >
-            Create Listing
-          </Button>
-        </Box>
-      )}
-
       {/* Listings Grid */}
-      {listings.length > 0 && (
+      {isTabLoading ? (
+        <LoadingState message={`Loading ${TAB_LABELS[TAB_STATUS[activeTab]]}...`} minHeight="50vh" />
+      ) : listings.length === 0 ? (
+        activeTab === 0 ? (
+          <EmptyState
+            title="No listings yet"
+            description="Create your first listing to start renting your golf clubs"
+            action={{ label: 'Create Listing', onClick: handleCreateNew, icon: <AddIcon /> }}
+          />
+        ) : (
+          <EmptyState
+            title={`No ${TAB_LABELS[TAB_STATUS[activeTab]]}`}
+          />
+        )
+      ) : (
         <Grid container spacing={3}>
           {listings.map((listing) => (
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={listing.id}>

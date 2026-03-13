@@ -19,6 +19,7 @@ export const useMyListings = () => {
   const [listings, setListings] = useState<BagListing[]>([]);
   const [currentListing, setCurrentListing] = useState<BagListing | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isTabLoading, setIsTabLoading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
   // Paginación
@@ -42,6 +43,27 @@ export const useMyListings = () => {
       error(axiosError.response?.data?.message || 'Failed to load listings');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  /**
+  * Fetch my listings with tab
+  */
+  const fetchMyListingsByTab = async (page?: number, status?: ListingStatus) => {
+    setIsTabLoading(true);
+    try {
+      const response = await listingService.getMyListings({
+        page: page || pagination.page,
+        limit: pagination.limit,
+        status,
+      });
+      setListings(response.data);
+      pagination.updatePagination(response.pagination);
+    } catch (err) {
+      const axiosError = err as AxiosError<ErrorResponse>;
+      error(axiosError.response?.data?.message || 'Failed to load listings');
+    } finally {
+      setIsTabLoading(false);
     }
   };
 
@@ -175,6 +197,7 @@ export const useMyListings = () => {
     isLoading,
     isCreating,
     pagination,
+    isTabLoading,
 
     // Actions
     fetchMyListings,
@@ -184,5 +207,6 @@ export const useMyListings = () => {
     handlePauseListing,
     handleDeleteListing,
     loadMore,
+    fetchMyListingsByTab
   };
 };
