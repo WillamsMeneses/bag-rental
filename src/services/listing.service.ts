@@ -97,7 +97,7 @@ export const listingService = {
     const queryParams = new URLSearchParams();
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.limit) queryParams.append('limit', params.limit.toString());
-    if (params?.status) queryParams.append('status', params.status); 
+    if (params?.status) queryParams.append('status', params.status);
 
     const url = `/listings/my-listings${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
     const response = await api.get<BackendPaginatedResponse>(url);
@@ -144,4 +144,13 @@ export const listingService = {
       message: 'Listing deleted successfully',
     };
   },
+
+  /**
+  * Update listing (PATCH) — used in edit mode
+  */
+  updateListing: async (id: string, data: CreateListingDto): Promise<BagListing> => {
+    const response = await api.patch<BagListingApiResponse>(`/listings/${id}`, data);
+    return transformListing(response.data);
+  },
 };
+

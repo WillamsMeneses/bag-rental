@@ -30,7 +30,7 @@ export const MyListingsPage: React.FC = () => {
   } = useMyListings();
 
   const handleCreateNew = () => {
-    navigate('/listings/create');
+    navigate('/create-listing');
   };
 
   const TAB_STATUS: ListingStatus[] = [

@@ -10,6 +10,8 @@ import { HomePage } from './pages/HomePage';
 import HomeLayout from './layouts/HomeLayout';
 import DashboardLayout from './layouts/DashboardLayout';
 import CssBaseline from '@mui/material/CssBaseline';
+import CreateListingPage from './pages/CreateListingPage';
+import EditListingPage from './pages/EditListingPage';
 
 function App() {
   return (
@@ -22,6 +24,12 @@ function App() {
           </Route>
           <Route element={<DashboardLayout />}>
             <Route path="/my-listings" element={<MyListingsPage />} />
+          </Route>
+           <Route element={<DashboardLayout />}>
+            <Route path="/create-listing" element={<CreateListingPage />} />
+          </Route>
+           <Route element={<DashboardLayout />}>
+            <Route path="/edit-listing" element={<EditListingPage />} />
           </Route>
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
         </Routes>
