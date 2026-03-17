@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Box,
   Typography,
@@ -25,7 +25,8 @@ interface SingleDriverFormProps {
   onSave: (data: DriverClubFormData, index: number) => void;
 }
 
-// Each driver has its own form instance
+// Each driver gets its own isolated form instance so validations don't bleed
+// between accordions.
 const SingleDriverForm: React.FC<SingleDriverFormProps> = ({
   index,
   defaultValues,
@@ -84,6 +85,11 @@ const SingleDriverForm: React.FC<SingleDriverFormProps> = ({
 
       <AccordionDetails sx={{ px: 2, pb: 2 }}>
         <FormProvider {...methods}>
+          {/*
+           * The form id (driver-form-{index}) is what links the hidden submit
+           * buttons in the parent to each individual form instance. Without this
+           * id the parent can't trigger submission programmatically.
+           */}
           <form id={`driver-form-${index}`} onSubmit={handleSave}>
             <ClubBaseForm showShaftType={false} />
           </form>
@@ -107,26 +113,33 @@ const DriverDetailsStep: React.FC<Props> = ({ count, initialDrivers, onSave }) =
     Array.from({ length: count }, (_, i) => initialDrivers[i] ?? null)
   );
 
+  /*
+   * Why a ref instead of reading `saved` directly in the onClick callback?
+   *
+   * The onClick closes over the value of `saved` at render time. When the
+   * Continue button triggers all form submissions, each form calls
+   * handleSingleSave which calls setSaved — but those setState calls are
+   * async: the `saved` variable captured by onClick still holds the OLD value
+   * in the same event cycle. That's why naively reading `saved` inside
+   * setTimeout requires two clicks: the first updates state, the second reads
+   * the already-updated value.
+   *
+   * savedRef is updated synchronously inside the setSaved callback (where the
+   * fresh `next` array is already available), so by the time the setTimeout
+   * fires it always reflects the latest saves regardless of React's batching.
+   */
+  const savedRef = useRef(saved);
+
   const handleSingleSave = (data: DriverClubFormData, index: number) => {
     setSaved((prev) => {
       const next = [...prev];
       next[index] = { ...data, flex: data.flex };
+      savedRef.current = next; // keep ref in sync with the freshest state
       return next;
     });
-    // Auto-expand next
+    // Auto-open the next accordion so the user flows naturally through each club
     if (index < count - 1) setExpanded(index + 1);
   };
-
-  //TODO: ver porque no se usan estos metodos ademas el button de continue reacciona al segundo click
-  const handleContinue = () => {
-    // Trigger all forms via submit — collect saved state
-    const allFilled = saved.every((s) => s !== null);
-    if (!allFilled) return;
-    onSave(saved as DriverClubForm[]);
-  };
-
-  // We use individual form submit buttons hidden, and track saves per index
-  const allSaved = saved.every((s) => s !== null);
 
   return (
     <Box>
@@ -145,7 +158,19 @@ const DriverDetailsStep: React.FC<Props> = ({ count, initialDrivers, onSave }) =
         />
       ))}
 
-      {/* Hidden submit triggers for each form */}
+      {/*
+       * Why hidden submit buttons instead of calling methods.handleSubmit() directly?
+       *
+       * Each form lives inside its own SingleDriverForm component and owns its
+       * own useForm instance — the parent has no reference to those instances.
+       * The HTML `form` attribute lets a <button> outside a <form> trigger that
+       * form's submit event, so we create one hidden button per form and click
+       * them programmatically from the Continue handler. This keeps each form
+       * self-contained without needing refs/forwardRef/useImperativeHandle.
+       *
+       * WoodDetailsStep is simpler because it has only ONE form, so its Continue
+       * button can use type="submit" form="wood-base-form" directly.
+       */}
       {Array.from({ length: count }, (_, i) => (
         <button
           key={i}
@@ -161,14 +186,20 @@ const DriverDetailsStep: React.FC<Props> = ({ count, initialDrivers, onSave }) =
           variant="contained"
           color="primary"
           onClick={() => {
-            // Trigger all form submissions then continue
+            // Trigger every form's validation + submit in one click
             Array.from({ length: count }, (_, i) => {
               document.getElementById(`driver-submit-trigger-${i}`)?.click();
             });
-            // Continue is gated by allSaved check after re-render
+
+            /*
+             * The form submissions above are synchronous DOM events but
+             * React's state updates inside handleSingleSave are batched and
+             * applied asynchronously. We defer the onSave check by one tick so
+             * savedRef.current has had a chance to be updated by all the
+             * handleSingleSave calls before we read it.
+             */
             setTimeout(() => {
-              // Check again after saves
-              const currentSaved = saved.filter(Boolean);
+              const currentSaved = savedRef.current.filter(Boolean);
               if (currentSaved.length === count) {
                 onSave(currentSaved as DriverClubForm[]);
               }
