@@ -112,26 +112,26 @@ export const listingService = {
    * Get listing by ID
    */
   getListingById: async (id: string): Promise<BagListing> => {
-    const response = await api.get<BagListingApiResponse>(`/listings/${id}`);
-    return transformListing(response.data);
+    const response = await api.get<{ success: boolean; data: BagListingApiResponse }>(`/listings/${id}`);
+    return transformListing(response.data.data);
   },
 
   /**
    * Create listing
    */
   createListing: async (data: CreateListingDto): Promise<BagListing> => {
-    const response = await api.post<BagListingApiResponse>('/listings', data);
-    return transformListing(response.data);
+    const response = await api.post<{ success: boolean; data: BagListingApiResponse }>('/listings', data);
+    return transformListing(response.data.data);
   },
 
   /**
    * Toggle listing status
    */
   toggleListingStatus: async (id: string): Promise<BagListing> => {
-    const response = await api.patch<BagListingApiResponse>(
+    const response = await api.patch<{ success: boolean; data: BagListingApiResponse }>(
       `/listings/${id}/toggle-status`,
     );
-    return transformListing(response.data);
+    return transformListing(response.data.data);
   },
 
   /**
