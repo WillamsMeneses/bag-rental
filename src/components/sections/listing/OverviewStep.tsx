@@ -115,7 +115,7 @@ const OverviewStep: React.FC<OverviewProps> = ({
   isSubmitting,
   isEdit = false,
 }) => {
-  const { listingDetails, quantities, drivers, wood, hybrid, irons, wedges, putter } = store;
+  const { listingDetails, quantities, drivers, wood, hybrid, irons, wedges, putters } = store;
 
   const locationParts = [
     listingDetails.street,
@@ -271,13 +271,22 @@ const OverviewStep: React.FC<OverviewProps> = ({
       )}
 
       {/* Putter */}
-      {quantities.putter > 0 && putter && (
+      {quantities.putter > 0 && putters.length > 0 && (
         <Section title="Putter" onEdit={() => onGoToStep('putter-details')}>
-          <DetailRow label="Brand" value={putter.brand} />
-          <DetailRow label="Model" value={putter.model} />
-          <DetailRow label="Flex" value={FLEX_LABEL[putter.flex] ?? putter.flex} />
-          <DetailRow label="Loft" value={putter.loft} />
-          <DetailRow label="Type" value={putter.putterType} />
+          {putters.map((p, i) => (
+            <Box key={i} sx={{ mb: i < putters.length - 1 ? 2 : 0 }}>
+              {putters.length > 1 && (
+                <Typography variant="h6" sx={{ py: 1, color: 'text.secondary' }}>
+                  {['First', 'Second', 'Third', 'Fourth'][i] ?? `#${i + 1}`} putter
+                </Typography>
+              )}
+              <DetailRow label="Brand" value={p.brand} />
+              <DetailRow label="Model" value={p.model} />
+              <DetailRow label="Flex" value={FLEX_LABEL[p.flex] ?? p.flex} />
+              <DetailRow label="Loft" value={p.loft} />
+              <DetailRow label="Type" value={p.putterType} />
+            </Box>
+          ))}
         </Section>
       )}
 

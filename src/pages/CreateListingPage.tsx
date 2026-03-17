@@ -48,7 +48,7 @@ export const CreateListingPage: React.FC = () => {
     saveHybrid,
     saveIrons,
     saveWedges,
-    savePutter,
+    savePutters,
     setQuantities,
     handleSubmit,
   } = useCreateListing();
@@ -139,8 +139,9 @@ export const CreateListingPage: React.FC = () => {
       case 'putter-details':
         return (
           <PutterDetailsStep
-            initial={store.putter}
-            onSave={savePutter}
+            count={quantities.putter}
+            initialPutters={store.putters}
+            onSave={savePutters}
           />
         );
 

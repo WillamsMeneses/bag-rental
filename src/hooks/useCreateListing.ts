@@ -17,25 +17,6 @@ import type { CreateListingDto, BagListing, ClubFlex, ShaftType, ClubCategory } 
 
 // ─── Helper: ordered steps based on quantities ────────────────────────────────
 
-// export const buildStepOrder = (quantities: {
-//   driver: number;
-//   wood: number;
-//   hybrid_rescue: number;
-//   iron: number;
-//   wedge: number;
-//   putter: number;
-// }): WizardStep[] => {
-//   const steps: WizardStep[] = ['club-quantities', 'listing-details'];
-//   if (quantities.driver > 0) steps.push('driver-details');
-//   if (quantities.wood > 0) steps.push('wood-details');
-//   if (quantities.hybrid_rescue > 0) steps.push('hybrid-details');
-//   if (quantities.iron > 0) steps.push('iron-details');
-//   if (quantities.wedge > 0) steps.push('wedge-details');
-//   if (quantities.putter > 0) steps.push('putter-details');
-//   steps.push('overview');
-//   return steps;
-// };
-
 export const buildStepOrder = (quantities: {
   driver: number;
   wood: number;
@@ -66,7 +47,7 @@ export const buildStepOrder = (quantities: {
 // ─── Helper: build CreateListingDto from store state ─────────────────────────
 
 const buildCreateListingDto = (store: ReturnType<typeof useCreateListingStore.getState>): CreateListingDto => {
-  const { listingDetails, quantities, drivers, wood, hybrid, irons, wedges, putter } = store;
+  const { listingDetails, quantities, drivers, wood, hybrid, irons, wedges, putters } = store;
   const clubs: CreateListingDto['clubs'] = [];
 
   // Drivers
@@ -153,18 +134,16 @@ const buildCreateListingDto = (store: ReturnType<typeof useCreateListingStore.ge
   }
 
   // Putter
-  if (putter && quantities.putter > 0) {
+  putters.forEach((p) => {
     clubs.push({
       category: 'putter' as ClubCategory,
-      brand: putter.brand,
-      model: putter.model,
-      flex: putter.flex as ClubFlex,
-      loft: Number(putter.loft),
-      putterDetail: {
-        putterType: putter.putterType,
-      },
+      brand: p.brand,
+      model: p.model,
+      flex: p.flex as ClubFlex,
+      loft: Number(p.loft),
+      putterDetail: { putterType: p.putterType },
     });
-  }
+  });
 
   return {
     title: listingDetails.title,
@@ -206,7 +185,7 @@ export const useCreateListing = (options: UseCreateListingOptions = {}) => {
     setHybrid,
     setIrons,
     setWedges,
-    setPutter,
+    setPutters,
     reset,
   } = store;
 
@@ -295,8 +274,8 @@ export const useCreateListing = (options: UseCreateListingOptions = {}) => {
     goNext();
   };
 
-  const savePutter = (putter: PutterClubForm) => {
-    setPutter(putter);
+  const savePutters = (putters: PutterClubForm[]) => {
+    setPutters(putters);
     goNext();
   };
 
@@ -323,7 +302,7 @@ export const useCreateListing = (options: UseCreateListingOptions = {}) => {
     saveHybrid,
     saveIrons,
     saveWedges,
-    savePutter,
+    savePutters,
     setQuantities,
 
     // Submit

@@ -133,7 +133,7 @@ interface CreateListingState {
   hybrid: HybridClubForm | null;
   irons: IronClubForm | null;
   wedges: WedgeClubForm | null;
-  putter: PutterClubForm | null;
+  putters: PutterClubForm[];
 
   // Actions
   setCurrentStep: (step: WizardStep) => void;
@@ -144,7 +144,7 @@ interface CreateListingState {
   setHybrid: (hybrid: HybridClubForm | null) => void;
   setIrons: (irons: IronClubForm | null) => void;
   setWedges: (wedges: WedgeClubForm | null) => void;
-  setPutter: (putter: PutterClubForm | null) => void;
+  setPutters: (putters: PutterClubForm[]) => void;
   reset: () => void;
 }
 
@@ -158,7 +158,7 @@ export type ListingWizardState = Pick<
   | 'hybrid'
   | 'irons'
   | 'wedges'
-  | 'putter'
+  | 'putters'
 >;
 
 // ─── Initial state ────────────────────────────────────────────────────────────
@@ -189,7 +189,8 @@ const initialState = {
   hybrid: null,
   irons: null,
   wedges: null,
-  putter: null,
+  // putter: null,
+  putters: [] as PutterClubForm[],
 };
 
 export const useCreateListingStore = create<CreateListingState>((set) => ({
@@ -209,7 +210,7 @@ export const useCreateListingStore = create<CreateListingState>((set) => ({
   setHybrid: (hybrid) => set({ hybrid }),
   setIrons: (irons) => set({ irons }),
   setWedges: (wedges) => set({ wedges }),
-  setPutter: (putter) => set({ putter }),
+  setPutters: (putters) => set({ putters }),
   reset: () => set(initialState),
 }));
 
@@ -245,7 +246,7 @@ export const populateStoreFromListing = (
   let hybridForm: HybridClubForm | null = null;
   let ironForm: IronClubForm | null = null;
   let wedgeForm: WedgeClubForm | null = null;
-  let putterForm: PutterClubForm | null = null;
+  const putters: PutterClubForm[] = [];
 
   for (const club of clubs) {
     const base = {
@@ -331,10 +332,10 @@ export const populateStoreFromListing = (
 
       case 'putter':
         qty.putter++;
-        putterForm = {
+        putters.push({
           ...base,
           putterType: club.putterDetail?.putterType ?? '',
-        };
+        });
         break;
     }
   }
@@ -346,5 +347,5 @@ export const populateStoreFromListing = (
   store.setHybrid(hybridForm);
   store.setIrons(ironForm);
   store.setWedges(wedgeForm);
-  store.setPutter(putterForm);
+  store.setPutters(putters);
 };
