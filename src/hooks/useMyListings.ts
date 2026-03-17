@@ -111,7 +111,7 @@ export const useMyListings = () => {
    * Edit a listing (navigate to edit page)
    */
   const handleEditListing = (id: string) => {
-    navigate(`/listings/${id}/edit`);
+    navigate(`/edit-listing/${id}`);
   };
 
   /**

@@ -29,7 +29,7 @@ function App() {
             <Route path="/create-listing" element={<CreateListingPage />} />
           </Route>
            <Route element={<DashboardLayout />}>
-            <Route path="/edit-listing" element={<EditListingPage />} />
+            <Route path="/edit-listing/:id" element={<EditListingPage />} />
           </Route>
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
         </Routes>

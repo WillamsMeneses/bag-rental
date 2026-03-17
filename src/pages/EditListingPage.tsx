@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Box, Container, IconButton, LinearProgress, Typography, CircularProgress } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { listingService } from '@/services/listing.service';
@@ -26,40 +26,17 @@ const STEP_TITLES: Record<string, string> = {
   'overview': 'Review',
 };
 
-//TODO: no se probo nada del edit asi que hay que revisar eso y ver cosas que no se usan en este code
-export const EditListingPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+// ─── Wizard — only mounts after store is populated ────────────────────────────
+
+interface WizardProps {
+  id: string;
+  initialPhotoUrls: string[];
+}
+
+const EditListingWizard: React.FC<WizardProps> = ({ id, initialPhotoUrls }) => {
   const store = useCreateListingStore();
-
-  const [isFetching, setIsFetching] = useState(true);
-  const [fetchError, setFetchError] = useState(false);
-  const [photoUrls, setPhotoUrls] = useState<string[]>([]);
+  const [photoUrls, setPhotoUrls] = useState<string[]>(initialPhotoUrls);
   const [updatedListing, setUpdatedListing] = useState<BagListing | null>(null);
-
-  // Load listing on mount and populate the store
-  useEffect(() => {
-    if (!id) return;
-
-    // Reset store first to avoid stale state
-    useCreateListingStore.getState().reset();
-
-    setIsFetching(true);
-    listingService
-      .getListingById(id)
-      .then((listing) => {
-        populateStoreFromListing(listing);
-        // Pre-populate photo URLs from listing (already uploaded URLs)
-        setPhotoUrls(listing.photos ?? []);
-      })
-      .catch(() => setFetchError(true))
-      .finally(() => setIsFetching(false));
-
-    // Reset store on unmount
-    return () => {
-      useCreateListingStore.getState().reset();
-    };
-  }, [id]);
 
   const {
     currentStep,
@@ -67,7 +44,6 @@ export const EditListingPage: React.FC = () => {
     stepOrder,
     currentIndex,
     isSubmitting,
-    isEditMode,
     goBack,
     goToStep,
     saveListingDetails,
@@ -77,10 +53,20 @@ export const EditListingPage: React.FC = () => {
     saveHybrid,
     saveIrons,
     saveWedges,
-    savePutter,
+    savePutters,
     setQuantities,
     handleSubmit,
   } = useCreateListing({ editId: id });
+
+  // Log every render to track state
+  console.log('[EditWizard] render', {
+    currentStep,
+    quantities,
+    stepOrder,
+    currentIndex,
+    drivers: store.drivers,
+    putters: store.putters,
+  });
 
   const progress = stepOrder.length > 1
     ? Math.round((currentIndex / (stepOrder.length - 1)) * 100)
@@ -91,31 +77,10 @@ export const EditListingPage: React.FC = () => {
     if (result) setUpdatedListing(result);
   };
 
-  // ── Loading state ──────────────────────────────────────────────────────────
-  if (isFetching) {
-    return (
-      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress color="primary" />
-      </Box>
-    );
-  }
-
-  if (fetchError) {
-    return (
-      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-          Could not load the listing. Please try again.
-        </Typography>
-      </Box>
-    );
-  }
-
-  // ── Success state ──────────────────────────────────────────────────────────
   if (updatedListing) {
     return <ListingSuccessPage listing={updatedListing} isEdit />;
   }
 
-  // ── Wizard ─────────────────────────────────────────────────────────────────
   const renderStep = () => {
     switch (currentStep) {
       case 'listing-details':
@@ -145,7 +110,7 @@ export const EditListingPage: React.FC = () => {
       case 'wedge-details':
         return <WedgeDetailsStep quantity={quantities.wedge} initial={store.wedges} onSave={saveWedges} />;
       case 'putter-details':
-        return <PutterDetailsStep initial={store.putter} onSave={savePutter} />;
+        return <PutterDetailsStep count={quantities.putter} initialPutters={store.putters} onSave={savePutters} />;
       case 'overview':
         return (
           <OverviewStep
@@ -164,24 +129,10 @@ export const EditListingPage: React.FC = () => {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      <Box
-        sx={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 100,
-          bgcolor: 'background.paper',
-          borderBottom: '0.5px solid',
-          borderColor: 'grey.200',
-        }}
-      >
+      <Box sx={{ position: 'sticky', top: 0, zIndex: 100, bgcolor: 'background.paper', borderBottom: '0.5px solid', borderColor: 'grey.200' }}>
         <Container maxWidth="md">
           <Box sx={{ display: 'flex', alignItems: 'center', py: 1.5 }}>
-            <IconButton
-              onClick={goBack}
-              size="small"
-              sx={{ mr: 1.5, '&:hover': { background: 'transparent' } }}
-              disableRipple
-            >
+            <IconButton onClick={goBack} size="small" sx={{ mr: 1.5, '&:hover': { background: 'transparent' } }} disableRipple>
               <ArrowBackIcon sx={{ color: 'text.primary' }} />
             </IconButton>
             <Typography variant="h4" sx={{ fontWeight: 500, flex: 1 }}>
@@ -198,12 +149,75 @@ export const EditListingPage: React.FC = () => {
           sx={{ height: 2, bgcolor: 'grey.100', '& .MuiLinearProgress-bar': { bgcolor: 'primary.main' } }}
         />
       </Box>
-
       <Container maxWidth={currentStep === 'listing-details' ? 'md' : 'sm'}>
         <Box sx={{ py: 4 }}>{renderStep()}</Box>
       </Container>
     </Box>
   );
+};
+
+// ─── Page — fetches listing and populates store before mounting wizard ─────────
+
+export const EditListingPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const [isReady, setIsReady] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
+  const [photoUrls, setPhotoUrls] = useState<string[]>([]);
+
+  // Reemplazar el useEffect completo:
+  useEffect(() => {
+    if (!id) return;
+
+    console.log('[EditListingPage] starting fetch for id:', id);
+    useCreateListingStore.getState().reset();
+
+    const load = async () => {
+      try {
+        const listing = await listingService.getListingById(id);
+        console.log('[EditListingPage] listing fetched:', listing);
+
+        populateStoreFromListing(listing);
+        console.log('[EditListingPage] store after populate:', useCreateListingStore.getState());
+
+        setPhotoUrls(listing.photos ?? []);
+        useCreateListingStore.getState().setCurrentStep('club-quantities');
+
+        console.log('[EditListingPage] store ready, mounting wizard');
+        setIsReady(true); // ← solo se llama desde dentro del async, no sincrónicamente
+      } catch (e) {
+        console.error('[EditListingPage] fetch error:', e);
+        setFetchError(true);
+      }
+    };
+
+    load();
+
+    return () => {
+      console.log('[EditListingPage] unmount, resetting store');
+      useCreateListingStore.getState().reset();
+    };
+  }, [id]);
+
+  if (fetchError) {
+    return (
+      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+          Could not load the listing. Please try again.
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (!isReady) {
+    return (
+      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress color="primary" />
+      </Box>
+    );
+  }
+
+  // Wizard only mounts here — store is guaranteed to be populated
+  return <EditListingWizard id={id!} initialPhotoUrls={photoUrls} />;
 };
 
 export default EditListingPage;
