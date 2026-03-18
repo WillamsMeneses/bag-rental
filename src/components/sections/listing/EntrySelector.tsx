@@ -44,7 +44,7 @@ const EntrySelector: React.FC<Props> = ({
   const getEntry = (value: string): SelectableEntry | undefined =>
     entries.find((e) => e.type === value);
 
-  const handleIncrement = (label: string, value: string) => {
+  const handleIncrement = ( value: string) => {
     if (remaining <= 0) return;
     const existing = getEntry(value);
     if (existing) {
@@ -118,7 +118,7 @@ const EntrySelector: React.FC<Props> = ({
                       {qty}
                     </Typography>
                     <IconButton
-                      onClick={() => handleIncrement(label, value)}
+                      onClick={() => handleIncrement(value)}
                       size="small"
                       disabled={remaining <= 0}
                       sx={{ p: 0, color: 'grey.500', '&:hover': { background: 'transparent', color: 'primary.main' } }}
@@ -129,7 +129,7 @@ const EntrySelector: React.FC<Props> = ({
                   </Box>
                 ) : (
                   <IconButton
-                    onClick={() => handleIncrement(label, value)}
+                    onClick={() => handleIncrement(value)}
                     size="small"
                     disabled={remaining <= 0}
                     sx={{ p: 0, color: 'grey.500', '&:hover': { background: 'transparent', color: 'primary.main' } }}

@@ -5,7 +5,6 @@ export const SHAFT_OPTIONS = ['steel', 'graphite'] as const;
 
 // ─── Listing Details ──────────────────────────────────────────────────────────
 
-//TODO: ver errores con el enums
 export const listingDetailsSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255, 'Title too long'),
   description: z.string().optional(),
@@ -13,8 +12,8 @@ export const listingDetailsSchema = z.object({
     .string()
     .min(1, 'Price is required')
     .refine((v) => !isNaN(Number(v)) && Number(v) > 0, 'Price must be greater than 0'),
-  gender: z.enum(['male', 'female'], { required_error: 'Gender is required' }),
-  hand: z.enum(['left_handed', 'right_handed'], { required_error: 'Hand preference is required' }),
+  gender: z.enum(['male', 'female'], { error: 'Gender is required' }),
+  hand: z.enum(['left_handed', 'right_handed'], { error: 'Hand preference is required' }),
   street: z.string().optional(),
   zipCode: z.string().optional(),
   state: z.string().optional(),
@@ -28,7 +27,7 @@ export type ListingDetailsFormData = z.infer<typeof listingDetailsSchema>;
 const baseClubSchema = z.object({
   brand: z.string().min(1, 'Brand is required').max(100),
   model: z.string().min(1, 'Model is required').max(100),
-  flex: z.enum(FLEX_OPTIONS, { required_error: 'Flex is required' }),
+  flex: z.enum(FLEX_OPTIONS, { error: 'Flex is required' }),
   loft: z
     .string()
     .min(1, 'Loft is required')
