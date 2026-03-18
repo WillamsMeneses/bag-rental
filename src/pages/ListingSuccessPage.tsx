@@ -151,7 +151,7 @@ export const ListingSuccessPage: React.FC<Props> = ({ listing, isEdit = false })
 
             {/* Go to my listings */}
             <Button
-              onClick={() => navigate('/listings')}
+              onClick={() => navigate('/my-listings')}
               disableRipple
               sx={{
                 mt: 1,
