@@ -70,7 +70,6 @@ export const CreateListingPage: React.FC = () => {
     return <ListingSuccessPage listing={createdListing} />;
   }
 
-  console.log("Mostrar el current step actual: ", currentStep);
   const renderStep = () => {
     switch (currentStep) {
       case 'listing-details':

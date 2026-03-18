@@ -58,16 +58,6 @@ const EditListingWizard: React.FC<WizardProps> = ({ id, initialPhotoUrls }) => {
     handleSubmit,
   } = useCreateListing({ editId: id });
 
-  // Log every render to track state
-  console.log('[EditWizard] render', {
-    currentStep,
-    quantities,
-    stepOrder,
-    currentIndex,
-    drivers: store.drivers,
-    putters: store.putters,
-  });
-
   const progress = stepOrder.length > 1
     ? Math.round((currentIndex / (stepOrder.length - 1)) * 100)
     : 0;
@@ -168,21 +158,17 @@ export const EditListingPage: React.FC = () => {
   useEffect(() => {
     if (!id) return;
 
-    console.log('[EditListingPage] starting fetch for id:', id);
     useCreateListingStore.getState().reset();
 
     const load = async () => {
       try {
         const listing = await listingService.getListingById(id);
-        console.log('[EditListingPage] listing fetched:', listing);
 
         populateStoreFromListing(listing);
-        console.log('[EditListingPage] store after populate:', useCreateListingStore.getState());
 
         setPhotoUrls(listing.photos ?? []);
         useCreateListingStore.getState().setCurrentStep('club-quantities');
 
-        console.log('[EditListingPage] store ready, mounting wizard');
         setIsReady(true); // ← solo se llama desde dentro del async, no sincrónicamente
       } catch (e) {
         console.error('[EditListingPage] fetch error:', e);
@@ -193,7 +179,6 @@ export const EditListingPage: React.FC = () => {
     load();
 
     return () => {
-      console.log('[EditListingPage] unmount, resetting store');
       useCreateListingStore.getState().reset();
     };
   }, [id]);
