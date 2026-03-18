@@ -10,8 +10,7 @@ import { HomePage } from './pages/HomePage';
 import HomeLayout from './layouts/HomeLayout';
 import DashboardLayout from './layouts/DashboardLayout';
 import CssBaseline from '@mui/material/CssBaseline';
-import CreateListingPage from './pages/CreateListingPage';
-import EditListingPage from './pages/EditListingPage';
+import { ListingWizardPage } from './pages/ListingWizardPage';
 
 function App() {
   return (
@@ -25,11 +24,11 @@ function App() {
           <Route element={<DashboardLayout />}>
             <Route path="/my-listings" element={<MyListingsPage />} />
           </Route>
-           <Route element={<DashboardLayout />}>
-            <Route path="/create-listing" element={<CreateListingPage />} />
+          <Route element={<DashboardLayout />}>
+            <Route path="/create-listing" element={<ListingWizardPage mode="create" />} />
           </Route>
-           <Route element={<DashboardLayout />}>
-            <Route path="/edit-listing/:id" element={<EditListingPage />} />
+          <Route element={<DashboardLayout />}>
+            <Route path="/edit-listing/:id" element={<ListingWizardPage mode="edit" />} />
           </Route>
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
         </Routes>

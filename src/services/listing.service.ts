@@ -149,8 +149,8 @@ export const listingService = {
   * Update listing (PATCH) — used in edit mode
   */
   updateListing: async (id: string, data: CreateListingDto): Promise<BagListing> => {
-    const response = await api.patch<BagListingApiResponse>(`/listings/${id}`, data);
-    return transformListing(response.data);
+    const response = await api.patch<{ success: boolean; data: BagListingApiResponse }>(`/listings/${id}`, data);
+    return transformListing(response.data.data);
   },
 };
 
