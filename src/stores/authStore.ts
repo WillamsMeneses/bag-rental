@@ -5,7 +5,6 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
-  // setTokens: (accessToken: string) => void;
   setTokens: (accessToken: string, refreshToken: string) => void;
   logout: () => void;
 }

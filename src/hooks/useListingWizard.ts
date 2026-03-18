@@ -244,16 +244,6 @@ export const useListingWizard = (options: UseListingWizardOptions = {}) => {
     goNext();
   };
 
-  // const saveQuantities = () => {
-  //   const total = Object.values(quantities).reduce((a, b) => a + b, 0);
-  //   if (total === 0) {
-  //     error('Please add at least one club');
-  //     return;
-  //   }
-  //   const newOrder = buildStepOrder(quantities);
-  //   const nextStep = newOrder[1] ?? 'overview';
-  //   setCurrentStep(nextStep);
-  // };
   const saveQuantities = () => {
     // Lee quantities fresh del store en el momento del click,
     // no del closure que puede estar desactualizado tras reset+populate
