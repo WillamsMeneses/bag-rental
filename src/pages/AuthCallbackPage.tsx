@@ -1,60 +1,51 @@
 import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Box, CircularProgress, Typography } from '@mui/material';
+import { useAuthStore } from '@/stores/authStore';
+import { useToastStore } from '@/stores/toastStore';
 
 const AuthCallbackPage = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { setTokens } = useAuthStore();
+  const { success, error } = useToastStore();
 
   useEffect(() => {
     const token = searchParams.get('token');
-    const error = searchParams.get('error');
+    const refreshToken = searchParams.get('refreshToken');
+    const authError = searchParams.get('error');
 
-    // Enviar mensaje al window opener (la ventana principal)
     if (window.opener) {
-      if (token) {
+      // Flujo popup — pasar tokens al opener y cerrar
+      if (token && refreshToken) {
         window.opener.postMessage(
-          {
-            type: 'GOOGLE_AUTH_SUCCESS',
-            token,
-          },
+          { type: 'GOOGLE_AUTH_SUCCESS', token, refreshToken },
           window.location.origin
         );
-      } else if (error) {
+      } else if (authError) {
         window.opener.postMessage(
-          {
-            type: 'GOOGLE_AUTH_ERROR',
-            error,
-          },
+          { type: 'GOOGLE_AUTH_ERROR', error: authError },
           window.location.origin
         );
       }
-
-      // Cerrar el popup después de enviar el mensaje
-      setTimeout(() => {
-        window.close();
-      }, 500);
+      setTimeout(() => window.close(), 500);
     } else {
-      // Si no es un popup, redirigir manualmente
-      if (token) {
-        localStorage.setItem('auth_token', token);
-        window.location.href = '/dashboard';
+      // Flujo redirect — guardar tokens directamente y navegar
+      if (token && refreshToken) {
+        setTokens(token, refreshToken);
+        success('Login successful!');
+        navigate('/dashboard');
+      } else if (authError) {
+        error(decodeURIComponent(authError));
+        navigate('/');
       } else {
-        window.location.href = '/';
+        navigate('/');
       }
     }
-  }, [searchParams]);
+  }, [searchParams, navigate, setTokens, success, error]);
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        gap: 2,
-      }}
-    >
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: 2 }}>
       <CircularProgress />
       <Typography variant="h6">Completing authentication...</Typography>
     </Box>

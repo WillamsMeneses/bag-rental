@@ -19,13 +19,13 @@ export const useGoogleAuth = () => {
       // Verificar que el mensaje venga de tu dominio
       if (event.origin !== window.location.origin) return;
 
-      const { type, token, error: authError } = event.data;
+      const { type, token,refreshToken, error: authError } = event.data;
 
-      if (type === 'GOOGLE_AUTH_SUCCESS' && token) {
-        setTokens(token);
+      if (type === 'GOOGLE_AUTH_SUCCESS' && token && refreshToken) {
+        setTokens(token, refreshToken);
         success('Login successful!');
         navigate('/dashboard');
-        
+
         // Cerrar el popup
         if (popupRef.current && !popupRef.current.closed) {
           popupRef.current.close();

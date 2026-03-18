@@ -7,11 +7,6 @@ export interface ApiResponse<T> {
   path: string;
 }
 
-export interface AuthTokens {
-  access_token: string;
-  refresh_token: string;
-}
-
 export interface CheckEmailData {
   exists: boolean;
   email: string;
@@ -19,7 +14,7 @@ export interface CheckEmailData {
 
 export interface AuthData {
   accessToken: string;
-  refresh_token: string;
+  refreshToken: string;
   user: {
     id: string;
     email: string;
