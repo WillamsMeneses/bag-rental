@@ -118,9 +118,9 @@ const buildCreateListingDto = (store: ReturnType<typeof useCreateListingStore.ge
       category: 'putter' as ClubCategory,
       brand: p.brand,
       model: p.model,
-      flex: p.flex as ClubFlex,
-      loft: Number(p.loft),
-      putterDetail: { putterType: p.putterType },
+      flex: 'regular' as ClubFlex, // ← requerido por el DTO, valor default
+      loft: 0,                      // ← requerido por el DTO, valor default
+      putterDetail: { putterTypes: p.putterTypes },
     });
   });
 

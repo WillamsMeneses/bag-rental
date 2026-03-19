@@ -22,6 +22,8 @@ const FLEX_OPTIONS = [
 
 interface ClubBaseFormProps {
   showShaftType?: boolean;
+  showFlex?: boolean;
+  showLoft?: boolean;
 }
 
 /**
@@ -29,7 +31,8 @@ interface ClubBaseFormProps {
  * Must be used inside a react-hook-form FormProvider.
  * Fields: brand, model, flex, loft, (optional) shaftType
  */
-const ClubBaseForm: React.FC<ClubBaseFormProps> = ({ showShaftType = false }) => {
+const ClubBaseForm: React.FC<ClubBaseFormProps> = ({ showShaftType = false, showFlex = true,   // ← default true — no rompe nada existente
+  showLoft = true, }) => {
   const {
     control,
     formState: { errors },
@@ -74,54 +77,59 @@ const ClubBaseForm: React.FC<ClubBaseFormProps> = ({ showShaftType = false }) =>
       </Box>
 
       {/* Flex */}
-      <Box>
-        <Typography variant="h6" sx={{ mb: 0.5 }}>Flex</Typography>
-        <Controller
-          name="flex"
-          control={control}
-          render={({ field }) => (
-            <FormControl fullWidth error={!!errors.flex}>
-              <Select
-                {...field}
-                displayEmpty
-                sx={{
-                  '& .MuiOutlinedInput-notchedOutline': { borderWidth: '0.5px', borderColor: 'grey.400' },
-                  '&:hover .MuiOutlinedInput-notchedOutline': { borderWidth: '0.5px', borderColor: 'grey.400' },
-                  borderRadius: '4px',
-                }}
-              >
-                <MenuItem value="" disabled>
-                  <Typography variant="body2" sx={{ color: 'text.disabled' }}>Select flex</Typography>
-                </MenuItem>
-                {FLEX_OPTIONS.map((opt) => (
-                  <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                ))}
-              </Select>
-              {errors.flex && <FormHelperText>{errors.flex.message as string}</FormHelperText>}
-            </FormControl>
-          )}
-        />
-      </Box>
+      {showFlex && (
+        <Box>
+          <Typography variant="h6" sx={{ mb: 0.5 }}>Flex</Typography>
+          <Controller
+            name="flex"
+            control={control}
+            render={({ field }) => (
+              <FormControl fullWidth error={!!errors.flex}>
+                <Select
+                  {...field}
+                  displayEmpty
+                  sx={{
+                    '& .MuiOutlinedInput-notchedOutline': { borderWidth: '0.5px', borderColor: 'grey.400' },
+                    '&:hover .MuiOutlinedInput-notchedOutline': { borderWidth: '0.5px', borderColor: 'grey.400' },
+                    borderRadius: '4px',
+                  }}
+                >
+                  <MenuItem value="" disabled>
+                    <Typography variant="body2" sx={{ color: 'text.disabled' }}>Select flex</Typography>
+                  </MenuItem>
+                  {FLEX_OPTIONS.map((opt) => (
+                    <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                  ))}
+                </Select>
+                {errors.flex && <FormHelperText>{errors.flex.message as string}</FormHelperText>}
+              </FormControl>
+            )}
+          />
+        </Box>
+      )}
 
       {/* Loft */}
-      <Box>
-        <Typography variant="h6" sx={{ mb: 0.5 }}>Loft</Typography>
-        <Controller
-          name="loft"
-          control={control}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              fullWidth
-              type="number"
-              placeholder="e.g. 10.5"
-              inputProps={{ min: 0, step: 0.5 }}
-              error={!!errors.loft}
-              helperText={errors.loft?.message as string}
-            />
-          )}
-        />
-      </Box>
+      {showLoft && (
+        <Box>
+          <Typography variant="h6" sx={{ mb: 0.5 }}>Loft</Typography>
+          <Controller
+            name="loft"
+            control={control}
+            render={({ field }) => (
+              //TODO: ver el tema del deprecated de inputProps
+              <TextField
+                {...field}
+                fullWidth
+                type="number"
+                placeholder="e.g. 10.5"
+                inputProps={{ min: 0, step: 0.5 }}
+                error={!!errors.loft}
+                helperText={errors.loft?.message as string}
+              />
+            )}
+          />
+        </Box>
+      )}
 
       {/* Shaft type (optional, shown for wood/hybrid/iron/wedge) */}
       {showShaftType && (

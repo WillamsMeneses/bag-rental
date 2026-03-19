@@ -8,14 +8,6 @@ import type {
   WedgeClubForm,
   PutterClubForm,
 } from '@/stores/createListingStore';
-import {
-  Typography as MuiTypography,
-  FormControl,
-  Select,
-  MenuItem,
-  FormHelperText,
-} from '@mui/material';
-import { Controller } from 'react-hook-form';
 import type { SelectableEntry } from './EntrySelector';
 import { hybridClubSchema, ironClubSchema, putterClubSchema, wedgeClubSchema, type HybridClubFormData, type IronClubFormData, type PutterClubFormData, type WedgeClubFormData } from '@/schemas/listingDetailsSchema';
 import ClubBaseForm from './ClubBaseForm';
@@ -287,22 +279,20 @@ export const WedgeDetailsStep: React.FC<WedgeProps> = ({ quantity, initial, onSa
 // ─── PUTTER ───────────────────────────────────────────────────────────────────
 
 const PUTTER_TYPE_OPTIONS = [
-  { value: 'blade', label: 'Blade' },
-  { value: 'mallet', label: 'Mallet' },
-  { value: 'mid_mallet', label: 'Mid-mallet' },
-  { value: 'center_shafted', label: 'Center-shafted' },
+  { label: 'Blade', value: 'blade' },
+  { label: 'Mallet', value: 'mallet' },
+  { label: 'Mid-mallet', value: 'mid_mallet' },
+  { label: 'Center-shafted', value: 'center_shafted' },
 ];
 
 const ORDINALS = ['First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh', 'Eighth'];
-
-// ─── Single putter form (one accordion per putter) ────────────────────────────
 
 interface SinglePutterFormProps {
   index: number;
   defaultValues: PutterClubForm;
   expanded: boolean;
   onToggle: () => void;
-  onSave: (data: PutterClubFormData, index: number) => void;
+  onSave: (data: PutterClubForm, index: number) => void;
 }
 
 const SinglePutterForm: React.FC<SinglePutterFormProps> = ({
@@ -312,19 +302,22 @@ const SinglePutterForm: React.FC<SinglePutterFormProps> = ({
   onToggle,
   onSave,
 }) => {
+  // putterTypes se maneja fuera del form (igual que woodEntries en WoodDetailsStep)
+  const [putterTypes, setPutterTypes] = useState<SelectableEntry[]>(
+    defaultValues.putterTypes.map((t) => ({ type: t, quantity: 1 }))
+  );
+
   const methods = useForm<PutterClubFormData>({
     resolver: zodResolver(putterClubSchema),
     defaultValues: {
       brand: defaultValues.brand,
       model: defaultValues.model,
-      flex: (defaultValues.flex as PutterClubFormData['flex']) || undefined,
-      loft: defaultValues.loft,
-      putterType: defaultValues.putterType ?? '',
     },
   });
 
   const handleSave = methods.handleSubmit((data) => {
-    onSave(data, index);
+    if (putterTypes.length === 0) return;
+    onSave({ brand: data.brand, model: data.model, putterTypes: putterTypes.map((e) => e.type) }, index);
   });
 
   return (
@@ -358,48 +351,21 @@ const SinglePutterForm: React.FC<SinglePutterFormProps> = ({
 
       <AccordionDetails sx={{ px: 2, pb: 2 }}>
         <FormProvider {...methods}>
-          {/*
-           * El id vincula este form con su hidden submit button en el padre.
-           * Mismo patrón que DriverDetailsStep — necesario porque cada putter
-           * tiene su propio useForm instance y el padre no tiene acceso directo.
-           */}
           <form id={`putter-form-${index}`} onSubmit={handleSave}>
-            <ClubBaseForm showShaftType={false} />
+            {/* Solo brand y model — sin flex ni loft */}
+            <ClubBaseForm showShaftType={false} showFlex={false} showLoft={false} />
 
-            <Box sx={{ mt: 2 }}>
-              <MuiTypography variant="h6" sx={{ mb: 0.5 }}>Putter Type*</MuiTypography>
-              <Controller
-                name="putterType"
-                control={methods.control}
-                render={({ field }) => (
-                  <FormControl fullWidth error={!!methods.formState.errors.putterType}>
-                    <Select
-                      {...field}
-                      displayEmpty
-                      sx={{
-                        '& .MuiOutlinedInput-notchedOutline': { borderWidth: '0.5px', borderColor: 'grey.400' },
-                        '&:hover .MuiOutlinedInput-notchedOutline': { borderWidth: '0.5px', borderColor: 'grey.400' },
-                        borderRadius: '4px',
-                      }}
-                    >
-                      <MenuItem value="" disabled>
-                        <MuiTypography variant="body2" sx={{ color: 'text.disabled' }}>
-                          Select putter type
-                        </MuiTypography>
-                      </MenuItem>
-                      {PUTTER_TYPE_OPTIONS.map((opt) => (
-                        <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                      ))}
-                    </Select>
-                    {methods.formState.errors.putterType && (
-                      <FormHelperText>
-                        {methods.formState.errors.putterType.message as string}
-                      </FormHelperText>
-                    )}
-                  </FormControl>
-                )}
-              />
-            </Box>
+            <Divider sx={{ my: 2 }} />
+
+            {/* EntrySelector en lugar del Select */}
+            <EntrySelector
+              options={PUTTER_TYPE_OPTIONS}
+              entries={putterTypes}
+              onChange={setPutterTypes}
+              remaining={99} // sin límite — puede seleccionar todos los tipos
+              showRemaining={false}
+              mode="checkbox"
+            />
           </form>
         </FormProvider>
       </AccordionDetails>
@@ -424,7 +390,7 @@ export const PutterDetailsStep: React.FC<PutterProps> = ({ count, initialPutters
   // Ver DriverDetailsStep para explicación completa del por qué del ref
   const savedRef = useRef(saved);
 
-  const handleSingleSave = (data: PutterClubFormData, index: number) => {
+  const handleSingleSave = (data: PutterClubForm, index: number) => {
     setSaved((prev) => {
       const next = [...prev];
       next[index] = { ...data };
@@ -444,7 +410,7 @@ export const PutterDetailsStep: React.FC<PutterProps> = ({ count, initialPutters
         <SinglePutterForm
           key={i}
           index={i}
-          defaultValues={saved[i] ?? { brand: '', model: '', flex: '', loft: '', putterType: '' }}
+          defaultValues={saved[i] ?? { brand: '', model: '', putterTypes: [] }}
           expanded={expanded === i}
           onToggle={() => setExpanded((prev) => (prev === i ? -1 : i))}
           onSave={handleSingleSave}

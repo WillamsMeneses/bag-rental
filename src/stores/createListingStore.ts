@@ -75,9 +75,7 @@ export interface WedgeClubForm {
 export interface PutterClubForm {
   brand: string;
   model: string;
-  flex: ClubFlex | '';
-  loft: string;
-  putterType: string;
+  putterTypes: string[];
 }
 
 // ─── Listing details ─────────────────────────────────────────────────────────
@@ -333,8 +331,9 @@ export const populateStoreFromListing = (
       case 'putter':
         qty.putter++;
         putters.push({
-          ...base,
-          putterType: club.putterDetail?.putterType ?? '',
+          brand: club.brand,
+          model: club.model,
+          putterTypes: club.putterDetail?.putterTypes ?? [],
         });
         break;
     }

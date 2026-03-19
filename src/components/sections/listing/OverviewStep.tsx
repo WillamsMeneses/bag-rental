@@ -282,9 +282,30 @@ const OverviewStep: React.FC<OverviewProps> = ({
               )}
               <DetailRow label="Brand" value={p.brand} />
               <DetailRow label="Model" value={p.model} />
-              <DetailRow label="Flex" value={FLEX_LABEL[p.flex] ?? p.flex} />
-              <DetailRow label="Loft" value={p.loft} />
-              <DetailRow label="Type" value={p.putterType} />
+              {p.putterTypes.length > 0 && (
+                <>
+                  {p.putterTypes.map((type) => (
+                    <Box
+                      key={type}
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        py: 1,
+                        borderBottom: '0.5px solid',
+                        borderColor: 'grey.100',
+                        bgcolor: 'grey.50',
+                        px: 1,
+                        borderRadius: '4px',
+                        mt: 0.5,
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ color: 'text.secondary', textTransform: 'capitalize' }}>
+                        {type.replace('_', ' ')}
+                      </Typography>
+                    </Box>
+                  ))}
+                </>
+              )}
             </Box>
           ))}
         </Section>

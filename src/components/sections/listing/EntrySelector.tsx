@@ -5,6 +5,7 @@ import {
   IconButton,
   TextField,
   Divider,
+  Checkbox,
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
@@ -25,6 +26,8 @@ interface Props {
   onChange: (entries: SelectableEntry[]) => void;
   remaining: number; // how many more can be added
   otherAllowed?: boolean;
+  showRemaining?: boolean;
+  mode?: 'counter' | 'checkbox';
 }
 
 /**
@@ -38,6 +41,8 @@ const EntrySelector: React.FC<Props> = ({
   onChange,
   remaining,
   otherAllowed = true,
+  showRemaining = true,
+  mode = 'counter',
 }) => {
   const [otherText, setOtherText] = useState('');
 
@@ -81,9 +86,11 @@ const EntrySelector: React.FC<Props> = ({
       <Typography variant="h6" sx={{ mb: 0.25 }}>
         Select all that apply
       </Typography>
-      <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 1.5 }}>
-        (Add {remaining} more)
-      </Typography>
+      {showRemaining && (
+        <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 1.5 }}>
+          (Add {remaining} more)
+        </Typography>
+      )}
 
       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
         {options.map(({ label, value }, idx) => {
@@ -104,39 +111,31 @@ const EntrySelector: React.FC<Props> = ({
                   {label}
                 </Typography>
 
-                {qty > 0 ? (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <IconButton
-                      onClick={() => handleDecrement(value)}
-                      size="small"
-                      sx={{ p: 0, color: 'grey.500', '&:hover': { background: 'transparent' } }}
-                      disableRipple
-                    >
-                      <RemoveCircleOutlineIcon sx={{ fontSize: 24 }} />
-                    </IconButton>
-                    <Typography variant="body2" sx={{ minWidth: 16, textAlign: 'center', fontWeight: 700 }}>
-                      {qty}
-                    </Typography>
-                    <IconButton
-                      onClick={() => handleIncrement(value)}
-                      size="small"
-                      disabled={remaining <= 0}
-                      sx={{ p: 0, color: 'grey.500', '&:hover': { background: 'transparent', color: 'primary.main' } }}
-                      disableRipple
-                    >
+                {mode === 'checkbox' ? (
+                  // ─── Checkbox mode ───────────────────────────────────────
+                  <Checkbox
+                    checked={qty > 0}
+                    onChange={() => qty > 0 ? handleDecrement(value) : handleIncrement(value)}
+                    disableRipple
+                    sx={{ p: 0 }}
+                  />
+                ) : (
+                  // ─── Counter mode ────────────────────────────────────────
+                  qty > 0 ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <IconButton onClick={() => handleDecrement(value)} size="small" sx={{ p: 0, color: 'grey.500', '&:hover': { background: 'transparent' } }} disableRipple>
+                        <RemoveCircleOutlineIcon sx={{ fontSize: 24 }} />
+                      </IconButton>
+                      <Typography variant="body2" sx={{ minWidth: 16, textAlign: 'center', fontWeight: 700 }}>{qty}</Typography>
+                      <IconButton onClick={() => handleIncrement(value)} size="small" disabled={remaining <= 0} sx={{ p: 0, color: 'grey.500', '&:hover': { background: 'transparent', color: 'primary.main' } }} disableRipple>
+                        <AddCircleOutlineIcon sx={{ fontSize: 24 }} />
+                      </IconButton>
+                    </Box>
+                  ) : (
+                    <IconButton onClick={() => handleIncrement(value)} size="small" disabled={remaining <= 0} sx={{ p: 0, color: 'grey.500', '&:hover': { background: 'transparent', color: 'primary.main' } }} disableRipple>
                       <AddCircleOutlineIcon sx={{ fontSize: 24 }} />
                     </IconButton>
-                  </Box>
-                ) : (
-                  <IconButton
-                    onClick={() => handleIncrement(value)}
-                    size="small"
-                    disabled={remaining <= 0}
-                    sx={{ p: 0, color: 'grey.500', '&:hover': { background: 'transparent', color: 'primary.main' } }}
-                    disableRipple
-                  >
-                    <AddCircleOutlineIcon sx={{ fontSize: 24 }} />
-                  </IconButton>
+                  )
                 )}
               </Box>
               {idx < options.length - 1 && <Divider sx={{ borderColor: 'grey.100' }} />}
@@ -154,28 +153,27 @@ const EntrySelector: React.FC<Props> = ({
                 <Typography variant="body2" sx={{ color: 'text.primary' }}>
                   {entry.type}
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <IconButton
-                    onClick={() => handleDecrement(entry.type)}
-                    size="small"
-                    sx={{ p: 0, color: 'grey.500', '&:hover': { background: 'transparent' } }}
+
+                {mode === 'checkbox' ? (
+                  <Checkbox
+                    checked={true}
+                    onChange={() => handleDecrement(entry.type)}
                     disableRipple
-                  >
-                    <RemoveCircleOutlineIcon sx={{ fontSize: 24 }} />
-                  </IconButton>
-                  <Typography variant="body2" sx={{ minWidth: 16, textAlign: 'center', fontWeight: 700 }}>
-                    {entry.quantity}
-                  </Typography>
-                  <IconButton
-                    onClick={() => handleIncrement(entry.type)}
-                    size="small"
-                    disabled={remaining <= 0}
-                    sx={{ p: 0, color: 'grey.500', '&:hover': { background: 'transparent', color: 'primary.main' } }}
-                    disableRipple
-                  >
-                    <AddCircleOutlineIcon sx={{ fontSize: 24 }} />
-                  </IconButton>
-                </Box>
+                    sx={{ p: 0 }}
+                  />
+                ) : (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <IconButton onClick={() => handleDecrement(entry.type)} size="small" sx={{ p: 0, color: 'grey.500', '&:hover': { background: 'transparent' } }} disableRipple>
+                      <RemoveCircleOutlineIcon sx={{ fontSize: 24 }} />
+                    </IconButton>
+                    <Typography variant="body2" sx={{ minWidth: 16, textAlign: 'center', fontWeight: 700 }}>
+                      {entry.quantity}
+                    </Typography>
+                    <IconButton onClick={() => handleIncrement(entry.type)} size="small" disabled={remaining <= 0} sx={{ p: 0, color: 'grey.500', '&:hover': { background: 'transparent', color: 'primary.main' } }} disableRipple>
+                      <AddCircleOutlineIcon sx={{ fontSize: 24 }} />
+                    </IconButton>
+                  </Box>
+                )}
               </Box>
             </React.Fragment>
           ))

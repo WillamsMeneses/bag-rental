@@ -69,7 +69,9 @@ export type WedgeClubFormData = z.infer<typeof wedgeClubSchema>;
 
 // ─── Putter schemas ───────────────────────────────────────────────────────────
 
-export const putterClubSchema = baseClubSchema.extend({
-  putterType: z.string().min(1, 'Putter type is required'),
+export const putterClubSchema = z.object({
+  brand: z.string().min(1, 'Brand is required').max(100),
+  model: z.string().min(1, 'Model is required').max(100),
+  // putterTypes se maneja fuera del form con useState, no va acá
 });
 export type PutterClubFormData = z.infer<typeof putterClubSchema>;

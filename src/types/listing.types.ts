@@ -73,7 +73,7 @@ export interface ClubWedgeDetail {
 export interface ClubPutterDetail {
   id: string;
   clubId: string;
-  putterType: string;
+  putterTypes: string[];  // ← era putterType: string
   createdAt: string;
 }
 
@@ -141,7 +141,7 @@ export interface CreateClubWedgeDetailDto {
 }
 
 export interface CreateClubPutterDetailDto {
-  putterType: string;
+  putterTypes: string[]; 
 }
 
 export interface CreateClubDto {
