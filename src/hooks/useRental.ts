@@ -1,28 +1,119 @@
-import { useState } from 'react';
-import dayjs, { type Dayjs } from 'dayjs';
+import { useState, useEffect, useCallback } from 'react';
+import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/stores/authStore';
+import { useToastStore } from '@/stores/toastStore';
+import { rentalService } from '@/services/rental.service';
 
-export const useRental = (pricePerDay: number) => {
+export const useRental = (pricePerDay: number, listingId: string) => {
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
+  const [blockedDates, setBlockedDates] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingDates, setIsLoadingDates] = useState(true);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
-  const totalDays = startDate && endDate
-    ? endDate.diff(startDate, 'day')
-    : 0;
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStore();
+  const { error } = useToastStore();
 
+  const totalDays = startDate && endDate ? endDate.diff(startDate, 'day') : 0;
   const totalPrice = totalDays * pricePerDay;
 
-  const handleDateChange = (start: Dayjs | null, end: Dayjs | null) => {
-    setStartDate(start);
-    setEndDate(end);
+  useEffect(() => {
+    const load = async () => {
+      setIsLoadingDates(true);
+      try {
+        const dates = await rentalService.getBlockedDates(listingId);
+        setBlockedDates(dates);
+      } catch {
+        // Non-critical
+      } finally {
+        setIsLoadingDates(false);
+      }
+    };
+    load();
+  }, [listingId]);
+  
+  const handleDateChange = useCallback(
+    (start: Dayjs | null, end: Dayjs | null) => {
+      // Si solo se seleccionó una fecha (start == end o end es null)
+      // resetear para evitar que persista el rango anterior
+      if (!start || !end || start.isSame(end, 'day')) {
+        setStartDate(start);
+        setEndDate(null);
+        return;
+      }
+
+      // Verificar si hay alguna fecha bloqueada dentro del rango
+      const hasBlockedDateInRange = blockedDates.some((blocked) => {
+        const blockedDay = dayjs(blocked);
+        return blockedDay.isAfter(start, 'day') && blockedDay.isBefore(end, 'day');
+      });
+
+      if (hasBlockedDateInRange) {
+        // Resetear — mismo comportamiento que Airbnb
+        setStartDate(null);
+        setEndDate(null);
+        return;
+      }
+
+      setStartDate(start);
+      setEndDate(end);
+    },
+    [blockedDates],
+  );
+
+  const isDateBlocked = useCallback(
+    (date: Date): boolean => blockedDates.includes(dayjs(date).format('YYYY-MM-DD')),
+    [blockedDates],
+  );
+
+  // Abre el confirm dialog — valida auth antes
+  const handleRentClick = () => {
+    if (!isAuthenticated) {
+      error('Please log in to rent this listing');
+      return;
+    }
+    if (!startDate || !endDate || totalDays <= 0) return;
+    setShowConfirmDialog(true);
   };
 
-  // Rental submit — to be implemented in second iteration
-  const handleRent = async () => {
+  // Confirma la renta — crea + mockea pago
+  const handleConfirmRent = async () => {
     if (!startDate || !endDate) return;
     setIsSubmitting(true);
-    // TODO: call rental service
-    setIsSubmitting(false);
+    try {
+      const rental = await rentalService.createRental({
+        listingId,
+        startDate: startDate.format('YYYY-MM-DD'),
+        endDate: endDate.format('YYYY-MM-DD'),
+      });
+      // Mock payment — en el futuro esto abre PayPal
+      await rentalService.confirmPayment(rental.id);
+      setShowConfirmDialog(false);
+      setShowSuccessDialog(true);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+          : undefined;
+      error(message || 'Failed to complete rental');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSuccessClose = () => {
+    setShowSuccessDialog(false);
+    navigate('/my-rentals');
+  };
+
+  const handleKeepLooking = () => {
+    setShowSuccessDialog(false);
+    navigate('/');
   };
 
   return {
@@ -30,8 +121,17 @@ export const useRental = (pricePerDay: number) => {
     endDate,
     totalDays,
     totalPrice,
+    blockedDates,
     isSubmitting,
+    isLoadingDates,
+    showConfirmDialog,
+    showSuccessDialog,
     handleDateChange,
-    handleRent,
+    handleRentClick,
+    handleConfirmRent,
+    handleSuccessClose,
+    handleKeepLooking,
+    isDateBlocked,
+    setShowConfirmDialog,
   };
 };
