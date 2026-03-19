@@ -11,6 +11,7 @@ import HomeLayout from './layouts/HomeLayout';
 import DashboardLayout from './layouts/DashboardLayout';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ListingWizardPage } from './pages/ListingWizardPage';
+import ListingDetailPage from './pages/ListingDetailPage';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Routes>
           <Route element={<HomeLayout />}>
             <Route path="/" element={<HomePage />} />
+            <Route path="/listings/:id" element={<ListingDetailPage />} />
           </Route>
           <Route element={<DashboardLayout />}>
             <Route path="/my-listings" element={<MyListingsPage />} />
