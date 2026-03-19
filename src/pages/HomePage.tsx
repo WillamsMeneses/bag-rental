@@ -5,18 +5,24 @@ import {
   Grid,
   CircularProgress,
   Pagination,
+  Button,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { FavoriteCard } from '@/components/cards';
 import { useAllListings } from '@/hooks/useAllListings';
 import { useFavorites } from '@/hooks/useFavorites';
 import AuthModal from '@/components/sections/auth/AuthModal';
+import { useStripeOnboarding } from '@/hooks/useStripeOnboarding';
+import { useAuthStore } from '@/stores/authStore';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { allListings, isLoadingAll, pagination, fetchAllListings } =
     useAllListings();
   const { toggleFavorite } = useFavorites();
+  const { isAuthenticated } = useAuthStore();
+  const { isConnected, isLoading, isCheckingStatus, handleConnectStripe } = useStripeOnboarding();
+
 
   const handleCardClick = (id: string) => {
     navigate(`/listings/${id}`);
@@ -45,6 +51,22 @@ export const HomePage: React.FC = () => {
     <Box>
       <Box sx={{ my: '20px' }}>
         <AuthModal />
+
+        {isAuthenticated && !isCheckingStatus && (
+          <Button
+            variant={isConnected ? 'outlined' : 'contained'}
+            color={isConnected ? 'success' : 'primary'}
+            onClick={isConnected ? undefined : handleConnectStripe}
+            disabled={isLoading || isConnected}
+            sx={{ py: 1, px: 2 }}
+          >
+            {isLoading
+              ? 'Redirecting to Stripe...'
+              : isConnected
+                ? '✓ Stripe Connected'
+                : 'Connect with Stripe'}
+          </Button>
+        )}
       </Box>
 
       <Typography variant="h4" component="h1" fontWeight={700} sx={{ mb: 4 }}>
