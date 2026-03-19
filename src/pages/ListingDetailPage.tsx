@@ -45,6 +45,7 @@ export const ListingDetailPage: React.FC = () => {
       </Box>
 
       <Grid container spacing={4}>
+        {/* ── Left column ──────────────────────────────────────────────── */}
         <Grid size={{ xs: 12, md: 7 }}>
           <PhotoCarousel photos={listing.photos} title={listing.title} />
 
@@ -88,24 +89,12 @@ export const ListingDetailPage: React.FC = () => {
           )}
 
           <ClubsTable clubs={listing.clubs} />
-
-          <Box sx={{ display: { xs: 'block', md: 'none' }, mt: 4 }}>
-            <RentalPanel
-              pricePerDay={listing.pricePerDay}
-              listingId={listing.id}
-              listing={{
-                title: listing.title,
-                pricePerDay: listing.pricePerDay,
-                hand: listing.hand,
-                photos: listing.photos,
-              }}
-            />
-          </Box>
         </Grid>
 
-        <Grid size={{ xs: 12, md: 5 }} sx={{ display: { xs: 'none', md: 'block' } }}>
-          <Box sx={{ position: 'sticky', top: 80 }}>
-            <Typography variant="h2" sx={{ mb: 3 }}>
+        {/* ── Right column — UNA SOLA instancia del RentalPanel ─────────── */}
+        <Grid size={{ xs: 12, md: 5 }}>
+          <Box sx={{ position: { md: 'sticky' }, top: { md: 80 }, mt: { xs: 4, md: 0 } }}>
+            <Typography variant="h2" sx={{ mb: 3, display: { xs: 'none', md: 'block' } }}>
               $ {listing.pricePerDay.toFixed(2)} USD/day
             </Typography>
             <RentalPanel
