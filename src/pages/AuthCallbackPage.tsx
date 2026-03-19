@@ -34,7 +34,7 @@ const AuthCallbackPage = () => {
       if (token && refreshToken) {
         setTokens(token, refreshToken);
         success('Login successful!');
-        navigate('/dashboard');
+        navigate('/');
       } else if (authError) {
         error(decodeURIComponent(authError));
         navigate('/');
