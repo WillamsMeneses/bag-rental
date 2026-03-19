@@ -44,7 +44,7 @@ const EntrySelector: React.FC<Props> = ({
   const getEntry = (value: string): SelectableEntry | undefined =>
     entries.find((e) => e.type === value);
 
-  const handleIncrement = ( value: string) => {
+  const handleIncrement = (value: string) => {
     if (remaining <= 0) return;
     const existing = getEntry(value);
     if (existing) {
@@ -143,6 +143,43 @@ const EntrySelector: React.FC<Props> = ({
             </React.Fragment>
           );
         })}
+
+        {/* Custom entries — los que no están en las opciones predefinidas */}
+        {entries
+          .filter((e) => !options.some((o) => o.value === e.type))
+          .map((entry) => (
+            <React.Fragment key={entry.type}>
+              <Divider sx={{ borderColor: 'grey.100' }} />
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 1.25 }}>
+                <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                  {entry.type}
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <IconButton
+                    onClick={() => handleDecrement(entry.type)}
+                    size="small"
+                    sx={{ p: 0, color: 'grey.500', '&:hover': { background: 'transparent' } }}
+                    disableRipple
+                  >
+                    <RemoveCircleOutlineIcon sx={{ fontSize: 24 }} />
+                  </IconButton>
+                  <Typography variant="body2" sx={{ minWidth: 16, textAlign: 'center', fontWeight: 700 }}>
+                    {entry.quantity}
+                  </Typography>
+                  <IconButton
+                    onClick={() => handleIncrement(entry.type)}
+                    size="small"
+                    disabled={remaining <= 0}
+                    sx={{ p: 0, color: 'grey.500', '&:hover': { background: 'transparent', color: 'primary.main' } }}
+                    disableRipple
+                  >
+                    <AddCircleOutlineIcon sx={{ fontSize: 24 }} />
+                  </IconButton>
+                </Box>
+              </Box>
+            </React.Fragment>
+          ))
+        }
 
         {/* "Other" free text */}
         {otherAllowed && (
