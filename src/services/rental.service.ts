@@ -6,6 +6,11 @@ interface BackendResponse<T> {
   data: T;
 }
 
+interface PaymentIntentResponse {
+  clientSecret: string;
+  paymentIntentId: string;
+}
+
 export const rentalService = {
   /**
    * Get blocked dates for a listing (public — no auth needed)
@@ -45,6 +50,25 @@ export const rentalService = {
     const response = await api.patch<BackendResponse<Rental>>(
       `/rentals/${rentalId}/confirm-payment`,
     );
+    return response.data.data;
+  },
+
+  createPaymentIntent: async (rentalId: string): Promise<PaymentIntentResponse> => {
+    const response = await api.post<BackendResponse<PaymentIntentResponse>>(
+      `/rentals/${rentalId}/create-payment-intent`,
+    );
+    return response.data.data;
+  },
+
+  createCheckoutSession: async (rentalId: string): Promise<{ url: string }> => {
+    const response = await api.post<BackendResponse<{ url: string }>>(
+      `/rentals/${rentalId}/create-checkout-session`,
+    );
+    return response.data.data;
+  },
+
+  getRentalById: async (rentalId: string): Promise<Rental> => {
+    const response = await api.get<BackendResponse<Rental>>(`/rentals/${rentalId}`);
     return response.data.data;
   },
 };

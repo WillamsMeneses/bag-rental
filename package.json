@@ -15,6 +15,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
+    "@stripe/stripe-js": "^8.11.0",
     "axios": "^1.13.4",
     "dayjs": "^1.11.20",
     "react": "^19.2.0",

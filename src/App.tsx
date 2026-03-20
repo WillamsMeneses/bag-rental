@@ -14,6 +14,7 @@ import { ListingWizardPage } from './pages/ListingWizardPage';
 import ListingDetailPage from './pages/ListingDetailPage';
 import { StripeReturnPage } from './pages/StripeReturnPage';
 import { StripeRefreshPage } from './pages/StripeRefreshPage';
+import { PaymentReturnPage } from './pages/PaymentReturnPage';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
             <Route path="/listings/:id" element={<ListingDetailPage />} />
             <Route path="/stripe/return" element={<StripeReturnPage />} />
             <Route path="/stripe/refresh" element={<StripeRefreshPage />} />
+            <Route path="/payment-return" element={<PaymentReturnPage />} />
           </Route>
           <Route element={<DashboardLayout />}>
             <Route path="/my-listings" element={<MyListingsPage />} />

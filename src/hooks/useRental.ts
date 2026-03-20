@@ -1,3 +1,4 @@
+// import { loadStripe } from '@stripe/stripe-js';
 import { useState, useEffect, useCallback } from 'react';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
@@ -5,6 +6,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { useToastStore } from '@/stores/toastStore';
 import { rentalService } from '@/services/rental.service';
+
+// const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
 
 export const useRental = (pricePerDay: number, listingId: string) => {
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
@@ -36,7 +40,7 @@ export const useRental = (pricePerDay: number, listingId: string) => {
     };
     load();
   }, [listingId]);
-  
+
   const handleDateChange = useCallback(
     (start: Dayjs | null, end: Dayjs | null) => {
       // Si solo se seleccionó una fecha (start == end o end es null)
@@ -81,7 +85,7 @@ export const useRental = (pricePerDay: number, listingId: string) => {
     setShowConfirmDialog(true);
   };
 
-  // Confirma la renta — crea + mockea pago
+  // Confirma la renta 
   const handleConfirmRent = async () => {
     if (!startDate || !endDate) return;
     setIsSubmitting(true);
@@ -91,16 +95,15 @@ export const useRental = (pricePerDay: number, listingId: string) => {
         startDate: startDate.format('YYYY-MM-DD'),
         endDate: endDate.format('YYYY-MM-DD'),
       });
-      // Mock payment — en el futuro esto abre PayPal
-      await rentalService.confirmPayment(rental.id);
-      setShowConfirmDialog(false);
-      setShowSuccessDialog(true);
+      const { url } = await rentalService.createCheckoutSession(rental.id);
+      sessionStorage.setItem('payment_return_url', window.location.pathname);
+      window.location.href = url; // redirect a Stripe hosted page
     } catch (err: unknown) {
       const message =
         err instanceof Error && 'response' in err
           ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
           : undefined;
-      error(message || 'Failed to complete rental');
+      error(message || 'Failed to initiate payment');
     } finally {
       setIsSubmitting(false);
     }

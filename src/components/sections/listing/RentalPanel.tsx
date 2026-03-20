@@ -4,8 +4,9 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import dayjs from 'dayjs';
 import { useRental } from '@/hooks/useRental';
-import { RentalConfirmDialog } from './RentalConfirmDialog';
+// import { RentalConfirmDialog } from './RentalConfirmDialog';
 import { RentalSuccessDialog } from './RentalSuccessDialog';
+import { RentalConfirmDrawer } from './RentalConfirmDialog';
 
 interface RentalPanelProps {
   pricePerDay: number;
@@ -141,7 +142,7 @@ export const RentalPanel: React.FC<RentalPanelProps> = ({ pricePerDay, listingId
 
       {/* Confirm dialog */}
       {startDate && endDate && (
-        <RentalConfirmDialog
+        <RentalConfirmDrawer
           open={showConfirmDialog}
           onClose={() => setShowConfirmDialog(false)}
           onConfirm={handleConfirmRent}

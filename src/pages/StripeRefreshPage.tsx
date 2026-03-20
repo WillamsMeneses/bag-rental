@@ -9,7 +9,6 @@ export const StripeRefreshPage: React.FC = () => {
 
   useEffect(() => {
     error('Session expired — restarting Stripe setup...');
-    // Re-iniciar el onboarding automáticamente
     handleConnectStripe();
   }, []);
 
