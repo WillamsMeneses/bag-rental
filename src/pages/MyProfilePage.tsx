@@ -8,6 +8,7 @@ import {
   TextField,
   Button,
   Divider,
+  CircularProgress,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import { useForm, Controller } from 'react-hook-form';
@@ -18,6 +19,7 @@ import { LoadingState } from '@/components/ui/LoadingState';
 import { useProfile } from '@/hooks/useProfile';
 import { profileSchema, type ProfileFormData } from '@/schemas/profileSchema';
 import { PhoneInputField } from '@/components/sections/profile/PhoneInputField';
+import { useImageUpload } from '@/hooks/useImageUpload';
 
 const FieldLabel = ({ children }: { children: React.ReactNode }) => (
   <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
@@ -27,6 +29,10 @@ const FieldLabel = ({ children }: { children: React.ReactNode }) => (
 
 export default function MyProfilePage() {
   const { profile, loading, saving, updateProfile } = useProfile();
+  const { fileInputRef, uploading: uploadingAvatar, handleClick: handleAvatarClick, handleChange: handleAvatarChange } =
+    useImageUpload({
+      onUpload: async ([url]) => updateProfile({ avatarUrl: url }),
+    });
 
   const { control, handleSubmit, reset } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -74,6 +80,8 @@ export default function MyProfilePage() {
                 />
                 <IconButton
                   size="small"
+                  onClick={handleAvatarClick}
+                  disabled={uploadingAvatar}
                   sx={{
                     position: 'absolute',
                     bottom: 4,
@@ -85,8 +93,18 @@ export default function MyProfilePage() {
                     '&:hover': { backgroundColor: 'success.dark' },
                   }}
                 >
-                  <EditIcon sx={{ fontSize: 16 }} />
+                  {uploadingAvatar
+                    ? <CircularProgress size={14} sx={{ color: 'white' }} />
+                    : <EditIcon sx={{ fontSize: 16 }} />
+                  }
                 </IconButton>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={handleAvatarChange}
+                />
               </Box>
             </Box>
 
@@ -158,25 +176,6 @@ export default function MyProfilePage() {
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 4 }}>
               <Box>
                 <FieldLabel>Phone number*</FieldLabel>
-                {/* <Controller
-                  name="phone"
-                  control={control}
-                  render={({ field }) => (
-                    <PhoneInput
-                      defaultCountry="us"
-                      value={field.value}
-                      onChange={field.onChange}
-                      style={{ width: '100%' }}
-                      inputStyle={{
-                        width: '100%',
-                        height: '40px',
-                        fontSize: '14px',
-                        borderColor: '#c4c4c4',
-                        borderRadius: '4px',
-                      }}
-                    />
-                  )}
-                /> */}
                 <Controller
                   name="phone"
                   control={control}
