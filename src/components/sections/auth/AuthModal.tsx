@@ -27,9 +27,9 @@ const AuthModal = () => {
       case 'email':
         return <AuthEmailForm />;
       case 'login':
-        return <AuthLoginForm />;
+        return <AuthLoginForm onSuccess={handleClose} />;
       case 'register':
-        return <AuthRegisterForm />;
+        return <AuthRegisterForm onSuccess={handleClose} />;
       default:
         return <AuthEmailForm />;
     }

@@ -17,12 +17,12 @@ interface ErrorResponse {
 export const useAuth = () => {
   const navigate = useNavigate();
   const { setTokens } = useAuthStore();
-  const { 
-    currentStep, 
-    currentEmail, 
-    setCurrentStep, 
+  const {
+    currentStep,
+    currentEmail,
+    setCurrentStep,
     setCurrentEmail,
-    resetAuthFlow 
+    resetAuthFlow
   } = useAuthFlowStore();
   const { success, error, info } = useToastStore();
   const [isLoading, setIsLoading] = useState(false);
@@ -48,14 +48,14 @@ export const useAuth = () => {
     }
   };
 
-  const handleLogin = async (data: LoginFormData) => {
+  const handleLogin = async (data: LoginFormData, onSuccess?: () => void) => {
     setIsLoading(true);
     try {
       const response = await authService.login(currentEmail, data);
-
       setTokens(response.data.accessToken, response.data.refreshToken);
       success(response.message || 'Login successful!');
       resetAuthFlow();
+      onSuccess?.();
       navigate('/');
     } catch (err) {
       const axiosError = err as AxiosError<ErrorResponse>;
@@ -65,14 +65,14 @@ export const useAuth = () => {
     }
   };
 
-  const handleRegister = async (data: RegisterFormData) => {
+  const handleRegister = async (data: RegisterFormData, onSuccess?: () => void) => {
     setIsLoading(true);
     try {
       const response = await authService.register(currentEmail, data);
-      
       setTokens(response.data.accessToken, response.data.refreshToken);
       success(response.message || 'Registration successful!');
       resetAuthFlow();
+      onSuccess?.();
       navigate('/dashboard');
     } catch (err) {
       const axiosError = err as AxiosError<ErrorResponse>;

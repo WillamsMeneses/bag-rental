@@ -4,7 +4,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, TextField, Typography } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
 
-const AuthLoginForm = () => {
+interface AuthLoginFormProps {
+  onSuccess?: () => void;
+}
+
+const AuthLoginForm = ({ onSuccess }: AuthLoginFormProps) => {
   const { handleLogin, isLoading } = useAuth();
 
   const {
@@ -32,7 +36,7 @@ const AuthLoginForm = () => {
           Please log in.
         </Typography>
 
-        <form id="auth-form" onSubmit={handleSubmit(handleLogin)}>
+        <form id="auth-form" onSubmit={handleSubmit((data) => handleLogin(data, onSuccess))}>
           <Box>
             <Typography variant="h6" sx={{
               mb: '5px'

@@ -5,7 +5,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, Checkbox, TextField, Typography } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
 
-const AuthRegisterForm = () => {
+interface AuthRegisterFormProps {
+  onSuccess?: () => void;
+}
+
+const AuthRegisterForm = ({ onSuccess }: AuthRegisterFormProps) => {
   const { handleRegister, isLoading } = useAuth();
 
   const {
@@ -32,7 +36,7 @@ const AuthRegisterForm = () => {
         <Typography variant="subtitle2">
           Please create an account.
         </Typography>
-        <form id="auth-form" onSubmit={handleSubmit(handleRegister)}>
+        <form id="auth-form" onSubmit={handleSubmit((data) => handleRegister(data, onSuccess))}>
           <Box>
             <Typography variant="h6" sx={{ mb: 0.5, fontWeight: 500 }}>
               Password
@@ -64,7 +68,7 @@ const AuthRegisterForm = () => {
             ml: '-2px',
             mb: '8px',
             mr: '8px'
-          }}/>
+          }} />
 
           < Box sx={{
             display: 'block',
