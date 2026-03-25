@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   TextField,
@@ -7,6 +7,7 @@ import {
   Checkbox,
   FormControlLabel,
   IconButton,
+  CircularProgress,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
@@ -14,6 +15,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { listingDetailsSchema, type ListingDetailsFormData } from '@/schemas/listingDetailsSchema';
 import { useCreateListingStore } from '@/stores/createListingStore';
+import { useImageUpload } from '@/hooks/useImageUpload';
 
 // ─── Toggle button group ──────────────────────────────────────────────────────
 
@@ -95,14 +97,26 @@ interface Props {
 
 const ListingDetailsStep: React.FC<Props> = ({ onNext, onPhotosChange, initialPhotos = [] }) => {
   const { listingDetails } = useCreateListingStore();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [photoUrls, setPhotoUrls] = useState<string[]>(initialPhotos);
   const [useAccountAddress, setUseAccountAddress] = useState(false);
+  const { fileInputRef, uploading: uploadingPhotos, handleClick: handlePhotoClick, handleChange: handlePhotoChange, multiple } =
+    useImageUpload({
+      multiple: true,
+      onUpload: async (urls) => {
+        const merged = [...photoUrls, ...urls].slice(0, MAX_PHOTOS);
+        updatePhotos(merged);
+      },
+    });
+  const MAX_PHOTOS = 5;
 
   const updatePhotos = (urls: string[]) => {
     setPhotoUrls(urls);
     onPhotosChange?.(urls);
   };
+
+  useEffect(() => {
+    setPhotoUrls(initialPhotos);
+  }, [initialPhotos]);
 
   const {
     control,
@@ -122,17 +136,6 @@ const ListingDetailsStep: React.FC<Props> = ({ onNext, onPhotosChange, initialPh
       city: listingDetails.city,
     },
   });
-
-  const handlePhotoAdd = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-    const newUrls = [...photoUrls];
-    Array.from(files).forEach((file) => {
-      newUrls.push(URL.createObjectURL(file));
-    });
-    updatePhotos(newUrls);
-    e.target.value = '';
-  };
 
   const onSubmit = (data: ListingDetailsFormData) => {
     onNext(data);
@@ -157,44 +160,48 @@ const ListingDetailsStep: React.FC<Props> = ({ onNext, onPhotosChange, initialPh
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
 
             {/* Photos */}
-            <Box>
+            <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+
               <Typography variant="h6" sx={{ mb: 1 }}>Photos</Typography>
-              <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
-                {photoUrls.map((src, i) => (
-                  <PhotoThumb
-                    key={i}
-                    src={src}
-                    onRemove={() => updatePhotos(photoUrls.filter((_, idx) => idx !== i))}
-                  />
-                ))}
+              {photoUrls.map((src, i) => (
+                <PhotoThumb
+                  key={i}
+                  src={src}
+                  onRemove={() => updatePhotos(photoUrls.filter((_, idx) => idx !== i))}
+                />
+              ))}
+              {photoUrls.length < MAX_PHOTOS && (
                 <Box
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={uploadingPhotos ? undefined : handlePhotoClick}
                   sx={{
                     width: 72,
                     height: 72,
                     border: '1.5px dashed',
-                    borderColor: 'grey.400',
+                    borderColor: uploadingPhotos ? 'grey.300' : 'grey.400',
                     borderRadius: '8px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    cursor: 'pointer',
+                    cursor: uploadingPhotos ? 'not-allowed' : 'pointer',
                     flexShrink: 0,
                     transition: 'all 0.15s ease',
-                    '&:hover': { borderColor: 'primary.main', bgcolor: 'rgba(106,157,80,0.04)' },
+                    '&:hover': uploadingPhotos ? {} : { borderColor: 'primary.main', bgcolor: 'rgba(106,157,80,0.04)' },
                   }}
                 >
-                  <AddIcon sx={{ color: 'grey.400', fontSize: 24 }} />
+                  {uploadingPhotos
+                    ? <CircularProgress size={20} />
+                    : <AddIcon sx={{ color: 'grey.400', fontSize: 24 }} />
+                  }
                 </Box>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  style={{ display: 'none' }}
-                  onChange={handlePhotoAdd}
-                />
-              </Box>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple={multiple}
+                style={{ display: 'none' }}
+                onChange={handlePhotoChange}
+              />
             </Box>
 
             {/* Title */}

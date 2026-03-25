@@ -219,6 +219,7 @@ export const useListingWizard = (options: UseListingWizardOptions = {}) => {
     setIsSubmitting(true);
     try {
       const dto = buildCreateListingDto(useCreateListingStore.getState());
+      dto.photos = photoUrls;
       let result: BagListing;
 
       if (isEditMode && editId) {
