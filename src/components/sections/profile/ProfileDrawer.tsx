@@ -59,7 +59,7 @@ export const ProfileDrawer = ({ open, onClose, username = 'Username' }: ProfileD
         <Typography
           variant="body2"
           sx={{ color: GREEN, cursor: 'pointer' }}
-          onClick={() => handleNavigate('/profile')}
+          onClick={() => handleNavigate('/my-profile')}
         >
           My profile →
         </Typography>
