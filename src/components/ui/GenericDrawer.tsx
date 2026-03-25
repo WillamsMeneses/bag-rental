@@ -8,6 +8,7 @@ interface GenericDrawerProps {
   children: React.ReactNode;
   actions?: React.ReactNode;
   width?: number | string;
+  headerSx?: object;
 }
 
 export const GenericDrawer = ({
@@ -17,12 +18,13 @@ export const GenericDrawer = ({
   children,
   actions,
   width = 420,
+  headerSx
 }: GenericDrawerProps) => {
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
       <Box sx={{ width, display: 'flex', flexDirection: 'column', height: '100%' }}>
         {/* Header */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 3, pt: 3, pb: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 3, pt: 3, pb: 2, ...headerSx  }}>
           {title ? (
             typeof title === 'string'
               ? <Typography variant="h3" fontWeight={600}>{title}</Typography>

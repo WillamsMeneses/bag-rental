@@ -15,6 +15,7 @@ import ListingDetailPage from './pages/ListingDetailPage';
 import { StripeReturnPage } from './pages/StripeReturnPage';
 import { StripeRefreshPage } from './pages/StripeRefreshPage';
 import { PaymentReturnPage } from './pages/PaymentReturnPage';
+import MyRentalsPage from './pages/MyRentalsPage';
 
 function App() {
   return (
@@ -31,12 +32,9 @@ function App() {
           </Route>
           <Route element={<DashboardLayout />}>
             <Route path="/my-listings" element={<MyListingsPage />} />
-          </Route>
-          <Route element={<DashboardLayout />}>
             <Route path="/create-listing" element={<ListingWizardPage mode="create" />} />
-          </Route>
-          <Route element={<DashboardLayout />}>
             <Route path="/edit-listing/:id" element={<ListingWizardPage mode="edit" />} />
+            <Route path="/my-rentals" element={<MyRentalsPage />} />
           </Route>
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
         </Routes>
