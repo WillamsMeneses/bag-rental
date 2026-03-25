@@ -11,7 +11,6 @@ import {
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
 import LabelOutlinedIcon from '@mui/icons-material/LabelOutlined';
 import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -31,7 +30,6 @@ const menuItems = [
   { label: 'Notifications', icon: <NotificationsNoneIcon />, route: '/notifications', badge: 1 },
   { label: 'Inbox', icon: <ChatBubbleOutlineIcon />, route: '/inbox', badge: 2 },
   { label: 'Favorites', icon: <FavoriteBorderIcon />, route: '/favorites' },
-  { label: 'Wallet', icon: <AccountBalanceWalletOutlinedIcon />, route: '/wallet' },
   { label: 'My Listings', icon: <LabelOutlinedIcon />, route: '/my-listings' },
   { label: 'My Rentals', icon: <ShoppingBagOutlinedIcon />, route: '/my-rentals' },
 ];
