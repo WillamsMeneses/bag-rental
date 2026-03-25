@@ -18,7 +18,9 @@ export interface ListingCardProps extends BaseCardProps {
 export interface RentalCardProps extends BaseCardProps {
   status: 'pending' | 'active' | 'completed';
   rating?: number;
-  location?: string;
+  city?: string;
+  state?: string;
+  onReportProblem?: (id: string) => void;
 }
 
 export interface FavoriteCardProps extends BaseCardProps {

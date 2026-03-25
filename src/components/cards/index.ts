@@ -9,6 +9,7 @@ export { CardBadge } from './CardBadge';
 // Variants
 export { ListingCard } from './ListingCard';
 export { FavoriteCard } from './FavoriteCard'; 
+export { RentalCard } from './RentalCard';
 
 // Types
 export type {

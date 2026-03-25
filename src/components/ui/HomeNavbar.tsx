@@ -1,7 +1,10 @@
 import { AppBar, Toolbar, Box, IconButton, Avatar, Typography } from '@mui/material';
 import HoverLink from './HoverLink';
+import { ProfileDrawer } from '../sections/profile/ProfileDrawer';
+import { useProfileDrawer } from '@/hooks/useProfileDrawer';
 
 function HomeNavbar() {
+  const { open, openDrawer, closeDrawer } = useProfileDrawer();
   return (
     <AppBar position="static" sx={{ backgroundColor: 'green' }}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
@@ -32,10 +35,18 @@ function HomeNavbar() {
 
         {/* Profile Button */}
         <Box>
-          <IconButton sx={{ backgroundColor: 'white', '&:hover': { backgroundColor: '#f5f5f5' } }}>
+          <IconButton
+            onClick={openDrawer}
+            sx={{ backgroundColor: 'white', '&:hover': { backgroundColor: '#f5f5f5' } }}
+          >
             <Avatar sx={{ width: 32, height: 32 }} />
-            {/* <KeyboardArrowDownIcon sx={{ ml: 1 }} /> */}
           </IconButton>
+
+          <ProfileDrawer
+            open={open}
+            onClose={closeDrawer}
+            username="JohnDoe" // reemplazá con el dato real del user
+          />
         </Box>
       </Toolbar>
     </AppBar>

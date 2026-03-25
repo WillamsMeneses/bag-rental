@@ -1,4 +1,4 @@
-import type { BlockedDatesResponse, CheckAvailabilityDto, CheckAvailabilityResponse, CreateRentalDto, Rental } from '@/types/rental.types';
+import type { BlockedDatesResponse, CheckAvailabilityDto, CheckAvailabilityResponse, CreateRentalDto, PaginatedRentals, Rental } from '@/types/rental.types';
 import { api } from './api';
 
 interface BackendResponse<T> {
@@ -69,6 +69,14 @@ export const rentalService = {
 
   getRentalById: async (rentalId: string): Promise<Rental> => {
     const response = await api.get<BackendResponse<Rental>>(`/rentals/${rentalId}`);
+    return response.data.data;
+  },
+
+  getMyRentals: async (page = 1, limit = 10): Promise<PaginatedRentals> => {
+    const response = await api.get<{ success: boolean; data: PaginatedRentals }>(
+      '/rentals/my-rentals',
+      { params: { page, limit } },
+    );
     return response.data.data;
   },
 };
