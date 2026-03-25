@@ -55,6 +55,18 @@ export interface RentalListingApiResponse {
   updatedAt: string;
 }
 
+export interface RentalOwnerApiResponse {
+  id: string;
+  email: string;
+  authProvider: string;
+  providerId: string | null;
+  isActive: boolean;
+  emailVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+  stripeAccountId: string | null;
+}
+
 // Shape real del rental que devuelve la API (strings en campos DECIMAL)
 export interface RentalApiResponse {
   id: string;
@@ -62,6 +74,7 @@ export interface RentalApiResponse {
   listing: RentalListingApiResponse;
   renterId: string;
   ownerId: string;
+  owner: RentalOwnerApiResponse;
   startDate: string;
   endDate: string;
   totalDays: number;

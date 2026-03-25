@@ -21,6 +21,7 @@ export interface RentalCardProps extends BaseCardProps {
   city?: string;
   state?: string;
   onReportProblem?: (id: string) => void;
+  onClick?: () => void;
 }
 
 export interface FavoriteCardProps extends BaseCardProps {

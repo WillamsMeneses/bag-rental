@@ -42,6 +42,7 @@ export const RentalCard: React.FC<RentalCardProps> = ({
   city,
   state,
   onReportProblem,
+  onClick,
 }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -63,7 +64,8 @@ export const RentalCard: React.FC<RentalCardProps> = ({
   const location = city && state ? `${city}, ${state}` : null;
 
   return (
-    <Card>
+    // <Card>
+    <Card onClick={onClick} sx={{ cursor: onClick ? 'pointer' : 'default' }}>
       <CardHeader>
         <Box sx={{ position: 'relative' }}>
           <CardMedia

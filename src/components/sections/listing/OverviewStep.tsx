@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Box,
   Typography,
   Button,
-  IconButton,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import type { ListingWizardState, WizardStep } from '@/stores/createListingStore';
+import { DetailRow } from '@/components/ui/DetailRow';
 
 const GENDER_LABEL: Record<string, string> = { male: 'Masculine', female: 'Feminine' };
 const HAND_LABEL: Record<string, string> = { left_handed: 'Left-handed', right_handed: 'Right-handed' };
@@ -31,50 +29,6 @@ const EditBtn: React.FC<{ onClick: () => void }> = ({ onClick }) => (
     Edit
   </Button>
 );
-
-// ─── Row ──────────────────────────────────────────────────────────────────────
-
-const DetailRow: React.FC<{
-  label: string;
-  value: string;
-  expandable?: boolean;
-}> = ({ label, value, expandable }) => {
-  const [open, setOpen] = useState(false);
-  const isLong = value.length > 50;
-  const shown = expandable && isLong && !open ? value.slice(0, 50) + '...' : value;
-
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        py: 1,
-        borderBottom: '0.5px solid',
-        borderColor: 'grey.100',
-      }}
-    >
-      <Typography variant="body2" sx={{ color: 'text.secondary', flexShrink: 0, mr: 2 }}>
-        {label}
-      </Typography>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, maxWidth: '60%', textAlign: 'right' }}>
-        <Typography variant="body2" sx={{ color: 'text.primary', fontWeight: 500 }}>
-          {shown}
-        </Typography>
-        {expandable && isLong && (
-          <IconButton
-            size="small"
-            onClick={() => setOpen((p) => !p)}
-            sx={{ p: 0, color: 'grey.500' }}
-            disableRipple
-          >
-            {open ? <ExpandLessIcon sx={{ fontSize: 16 }} /> : <ExpandMoreIcon sx={{ fontSize: 16 }} />}
-          </IconButton>
-        )}
-      </Box>
-    </Box>
-  );
-};
 
 // ─── Section wrapper ──────────────────────────────────────────────────────────
 
@@ -156,9 +110,9 @@ const OverviewStep: React.FC<OverviewProps> = ({
         <DetailRow label="Gender" value={GENDER_LABEL[listingDetails.gender] ?? '—'} />
         <DetailRow label="Hand" value={HAND_LABEL[listingDetails.hand] ?? '—'} />
         {listingDetails.description && (
-          <DetailRow label="Description" value={listingDetails.description} expandable />
+          <DetailRow label="Description" value={listingDetails.description} />
         )}
-        <DetailRow label="Location" value={locationStr} expandable />
+        <DetailRow label="Location" value={locationStr} />
       </Section>
 
       {/* ── Clubs ──────────────────────────────────────────────────────────── */}
