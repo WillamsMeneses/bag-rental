@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect} from 'react';
 import {
   Box,
   Grid,
@@ -19,6 +19,7 @@ import { LoadingState } from '@/components/ui/LoadingState';
 import { useProfile } from '@/hooks/useProfile';
 import { profileSchema, type ProfileFormData } from '@/schemas/profileSchema';
 import { PhoneInputField } from '@/components/sections/profile/PhoneInputField';
+
 import { useImageUpload } from '@/hooks/useImageUpload';
 
 const FieldLabel = ({ children }: { children: React.ReactNode }) => (
@@ -29,10 +30,8 @@ const FieldLabel = ({ children }: { children: React.ReactNode }) => (
 
 export default function MyProfilePage() {
   const { profile, loading, saving, updateProfile } = useProfile();
-  const { fileInputRef, uploading: uploadingAvatar, handleClick: handleAvatarClick, handleChange: handleAvatarChange } =
-    useImageUpload({
-      onUpload: async ([url]) => updateProfile({ avatarUrl: url }),
-    });
+  const { fileInputRef, uploading: uploadingAvatar, handleClick: handleAvatarClick, handleChange: handleAvatarChange, previewUrl: avatarPreview, flush: flushAvatar } =
+    useImageUpload({ mode: 'pending' });
 
   const { control, handleSubmit, reset } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -58,7 +57,8 @@ export default function MyProfilePage() {
   }, [profile, reset]);
 
   const onSubmit = async (data: ProfileFormData) => {
-    await updateProfile(data);
+    const avatarUrl = await flushAvatar();
+    await updateProfile({ ...data, ...(avatarUrl ? { avatarUrl } : {}) });
   };
 
   if (loading) return <LoadingState message="Loading profile..." />;
@@ -75,8 +75,8 @@ export default function MyProfilePage() {
             <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
               <Box sx={{ position: 'relative' }}>
                 <Avatar
-                  src={profile?.avatarUrl ?? undefined}
-                  sx={{ width: 120, height: 120 }}
+                  src={avatarPreview ?? profile?.avatarUrl ?? undefined}
+                  sx={{ width: 120, height: 120, opacity: uploadingAvatar ? 0.5 : 1 }}
                 />
                 <IconButton
                   size="small"
@@ -246,10 +246,10 @@ export default function MyProfilePage() {
             type="submit"
             variant="contained"
             color="success"
-            disabled={saving}
+            disabled={saving || uploadingAvatar}
             sx={{ px: 4, py: 1.5, borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
           >
-            {saving ? 'Saving...' : 'Save changes'}
+            {saving || uploadingAvatar ? 'Saving...' : 'Save changes'}
           </Button>
         </Box>
       </form>
