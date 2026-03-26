@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -7,37 +7,46 @@ import {
   Pagination,
   Button,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FavoriteCard } from '@/components/cards';
 import { useAllListings } from '@/hooks/useAllListings';
-import { useFavorites } from '@/hooks/useFavorites';
 import AuthModal from '@/components/sections/auth/AuthModal';
 import { useStripeOnboarding } from '@/hooks/useStripeOnboarding';
 import { useAuthStore } from '@/stores/authStore';
+import { useFavoritesPage } from '@/hooks/useFavorites';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
-  const { allListings, isLoadingAll, pagination, fetchAllListings } =
-    useAllListings();
-  const { toggleFavorite } = useFavorites();
+  const { allListings, isLoadingAll, pagination, fetchAllListings, updateFavorite } = useAllListings();
+  const { toggleFavorite } = useFavoritesPage();
   const { isAuthenticated } = useAuthStore();
   const { isConnected, isLoading, isCheckingStatus, handleConnectStripe } = useStripeOnboarding();
+  const location = useLocation();
 
 
   const handleCardClick = (id: string) => {
     navigate(`/listings/${id}`);
   };
 
-  const handleToggleFavorite = async (id: string) => {
-    const isFavorited = await toggleFavorite(id);
-    if (isFavorited !== null) {
-      fetchAllListings(pagination.page);
-    }
+  const handleToggleFavorite = (id: string) => {
+    const listing = allListings.find((l) => l.id === id);
+    if (!listing) return;
+    const newValue = !listing.isFavorite;
+    updateFavorite(id, newValue);
+    toggleFavorite(id).catch(() => {
+      // Revert on failure
+      updateFavorite(id, !newValue);
+    });
   };
 
   const handlePageChange = (_: React.ChangeEvent<unknown>, page: number) => {
     pagination.setPage(page);
   };
+
+  useEffect(() => {
+    fetchAllListings();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.key]);
 
   if (isLoadingAll && allListings.length === 0) {
     return (

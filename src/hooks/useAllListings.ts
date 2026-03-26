@@ -73,6 +73,14 @@ export const useAllListings = () => {
     await fetchAllListings(1);
   };
 
+  const updateFavorite = (id: string, isFavorited: boolean) => {
+    setAllListings((prev) =>
+      prev.map((listing) =>
+        listing.id === id ? { ...listing, isFavorite: isFavorited } : listing
+      )
+    );
+  };
+
   /**
    * Auto-fetch on mount
    */
@@ -99,5 +107,6 @@ export const useAllListings = () => {
     fetchAllListings,
     loadMore,
     refreshListings,
+    updateFavorite
   };
 };

@@ -1,74 +1,60 @@
-import { useState } from 'react';
-import type { AxiosError } from 'axios';
-import { useToastStore } from '@/stores/toastStore';
+import { useState, useEffect } from 'react';
 import { favoriteService } from '@/services/favorite.service';
+import { useToastStore } from '@/stores/toastStore';
 import type { BagListing } from '@/types/listing.types';
-import { usePagination } from './usePagination';
 
-interface ErrorResponse {
-  success: boolean;
-  message: string;
-  timestamp: string;
-  path: string;
+interface UseFavoritesPageReturn {
+  favorites: BagListing[];
+  loading: boolean;
+  pagination: {
+    page: number;
+    totalPages: number;
+    hasMore: boolean;
+  };
+  setPage: (page: number) => void;
+  toggleFavorite: (id: string) => Promise<void>;
 }
 
-export const useFavorites = () => {
-  const { success, error } = useToastStore();
+export const useFavoritesPage = (): UseFavoritesPageReturn => {
   const [favorites, setFavorites] = useState<BagListing[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const { error } = useToastStore();
 
-  const pagination = usePagination({ initialLimit: 12 });
-
-  /**
-   * Fetch favorites with pagination
-   */
-  const fetchFavorites = async (page?: number) => {
-    setIsLoading(true);
+  const fetchFavorites = async (p: number) => {
+    setLoading(true);
     try {
-      const response = await favoriteService.getUserFavorites({
-        page: page || pagination.page,
-        limit: pagination.limit,
-      });
-
+      const response = await favoriteService.getUserFavorites({ page: p, limit: 12 });
       setFavorites(response.data);
-      pagination.updatePagination(response.pagination);
-    } catch (err) {
-      const axiosError = err as AxiosError<ErrorResponse>;
-      error(axiosError.response?.data?.message || 'Failed to load favorites');
+      setTotalPages(response.pagination.totalPages);
+      setHasMore(response.pagination.hasMore);
+    } catch {
+      error('Failed to load favorites');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  /**
-   * Toggle favorite
-   */
-  const toggleFavorite = async (listingId: string) => {
-    try {
-      const response = await favoriteService.toggleFavorite(listingId);
+  useEffect(() => {
+    fetchFavorites(page);
+  }, [page]);
 
-      if (response.isFavorited) {
-        success('Added to favorites');
-      } else {
-        success('Removed from favorites');
-      }
-
-      return response.isFavorited;
-    } catch (err) {
-      const axiosError = err as AxiosError<ErrorResponse>;
-      error(axiosError.response?.data?.message || 'Failed to toggle favorite');
-      return null;
-    }
+  const toggleFavorite = async (id: string) => {
+    // Remove immediately without waiting for response
+    setFavorites((prev) => prev.filter((f) => f.id !== id));
+    favoriteService.toggleFavorite(id).catch(() => {
+      // Revert on failure — refetch
+      fetchFavorites(page);
+    });
   };
 
   return {
-    // State
     favorites,
-    isLoading,
-    pagination,
-
-    // Actions
-    fetchFavorites,
+    loading,
+    pagination: { page, totalPages, hasMore },
+    setPage,
     toggleFavorite,
   };
 };

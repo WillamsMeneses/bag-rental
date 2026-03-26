@@ -1,15 +1,19 @@
-import type { BagListing } from './listing.types';
+import type { BagListingApiResponse } from './listing.types';
 
 export interface ToggleFavoriteResponse {
   isFavorited: boolean;
 }
 
-export interface FavoriteIdsResponse {
-  favoriteIds: string[];
-}
-
-export interface FavoritesResponse {
+export interface FavoritePaginatedResponse {
   success: boolean;
-  message: string;
-  data: BagListing[];
+  data: {
+    data: BagListingApiResponse[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+      hasMore: boolean;
+    };
+  };
 }

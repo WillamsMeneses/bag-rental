@@ -1,29 +1,16 @@
-//TODO: Revisar esto porque no lo estoy usando en una vista
-import type { BagListing, BagListingApiResponse } from '@/types/listing.types';
+import type { BagListing } from '@/types/listing.types';
 import type { PaginationParams } from '@/types/pagination.types';
-import type { ToggleFavoriteResponse } from '@/types/favorite.types';
+import type { ToggleFavoriteResponse, FavoritePaginatedResponse } from '@/types/favorite.types';
 import { api } from './api';
 import { transformListing } from './listing.service';
 
 export const favoriteService = {
-  /**
-   * Toggle favorite on a listing
-   */
-  toggleFavorite: async (
-    listingId: string,
-  ): Promise<ToggleFavoriteResponse> => {
-    const response = await api.post<ToggleFavoriteResponse>(
-      `/favorites/${listingId}`,
-    );
-    return response.data;
+  toggleFavorite: async (listingId: string): Promise<ToggleFavoriteResponse> => {
+    const response = await api.post<{ data: ToggleFavoriteResponse }>(`/favorites/${listingId}`);
+    return response.data.data;
   },
 
-  /**
-   * Get user favorites WITH PAGINATION
-   */
-  getUserFavorites: async (
-    params?: PaginationParams,
-  ): Promise<{
+  getUserFavorites: async (params?: PaginationParams): Promise<{
     data: BagListing[];
     pagination: {
       page: number;
@@ -38,16 +25,11 @@ export const favoriteService = {
     if (params?.limit) queryParams.append('limit', params.limit.toString());
 
     const url = `/favorites${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-    const response = await api.get<{
-      data: BagListingApiResponse[];
-      pagination: any;
-    }>(url);
+    const response = await api.get<FavoritePaginatedResponse>(url);
 
     return {
-      data: response.data.data.map(transformListing),
-      pagination: response.data.pagination,
+      data: response.data.data.data.map(transformListing),
+      pagination: response.data.data.pagination,
     };
   },
-
-  // ELIMINAR getFavoriteIds() porque ya no es necesario
 };
