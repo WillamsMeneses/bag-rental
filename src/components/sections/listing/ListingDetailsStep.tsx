@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Box,
   TextField,
@@ -7,15 +7,15 @@ import {
   Checkbox,
   FormControlLabel,
   IconButton,
-  CircularProgress,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { listingDetailsSchema, type ListingDetailsFormData } from '@/schemas/listingDetailsSchema';
-import { useCreateListingStore } from '@/stores/createListingStore';
-import { useImageUpload } from '@/hooks/useImageUpload';
+import { useCreateListingStore } from '@/stores/createListingStore'
+import { validateImageFile } from '@/utils/file.utils';
+import { useToastStore } from '@/stores/toastStore';
 
 // ─── Toggle button group ──────────────────────────────────────────────────────
 
@@ -90,34 +90,50 @@ const PhotoThumb: React.FC<{ src: string; onRemove: () => void }> = ({ src, onRe
 // ─── Main step ────────────────────────────────────────────────────────────────
 
 interface Props {
-  onNext: (data: Partial<ListingDetailsFormData>) => void;
-  onPhotosChange?: (urls: string[]) => void;
+  onNext: (data: Partial<ListingDetailsFormData>, pendingFiles: File[], existingPhotoUrls: string[]) => void;
   initialPhotos?: string[];
 }
 
-const ListingDetailsStep: React.FC<Props> = ({ onNext, onPhotosChange, initialPhotos = [] }) => {
+const ListingDetailsStep: React.FC<Props> = ({ onNext, initialPhotos = [] }) => {
   const { listingDetails } = useCreateListingStore();
-  const [photoUrls, setPhotoUrls] = useState<string[]>(initialPhotos);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [photoPreviewUrls, setPhotoPreviewUrls] = useState<string[]>(initialPhotos);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [useAccountAddress, setUseAccountAddress] = useState(false);
-  const { fileInputRef, uploading: uploadingPhotos, handleClick: handlePhotoClick, handleChange: handlePhotoChange, multiple } =
-    useImageUpload({
-      multiple: true,
-      onUpload: async (urls) => {
-        const merged = [...photoUrls, ...urls].slice(0, MAX_PHOTOS);
-        updatePhotos(merged);
-      },
-    });
   const MAX_PHOTOS = 5;
-
-  const updatePhotos = (urls: string[]) => {
-    setPhotoUrls(urls);
-    onPhotosChange?.(urls);
-  };
+  const { error } = useToastStore();
 
   useEffect(() => {
-    setPhotoUrls(initialPhotos);
+    setPhotoPreviewUrls(initialPhotos);
   }, [initialPhotos]);
 
+  const handlePhotoAdd = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+
+    const validFiles = files.filter((f) => {
+      const err = validateImageFile(f);
+      if (err) { error(err); return false; }
+      return true;
+    });
+
+    const toAdd = validFiles.slice(0, MAX_PHOTOS - photoPreviewUrls.length);
+    setPhotoPreviewUrls((prev) => [...prev, ...toAdd.map((f) => URL.createObjectURL(f))]);
+    setPendingFiles((prev) => [...prev, ...toAdd]);
+    e.target.value = '';
+  };
+
+  const handleRemovePhoto = (index: number) => {
+    const url = photoPreviewUrls[index];
+    // Revoke blob URL to free memory
+    if (url.startsWith('blob:')) URL.revokeObjectURL(url);
+    setPhotoPreviewUrls((prev) => prev.filter((_, i) => i !== index));
+    // Only remove from pending files if it's a new photo, not an existing Cloudinary URL
+    const existingCount = initialPhotos.length;
+    if (index >= existingCount) {
+      setPendingFiles((prev) => prev.filter((_, i) => i !== index - existingCount));
+    }
+  };
   const {
     control,
     handleSubmit,
@@ -138,7 +154,8 @@ const ListingDetailsStep: React.FC<Props> = ({ onNext, onPhotosChange, initialPh
   });
 
   const onSubmit = (data: ListingDetailsFormData) => {
-    onNext(data);
+    const existingPhotoUrls = initialPhotos.filter((url) => photoPreviewUrls.includes(url));
+    onNext(data, pendingFiles, existingPhotoUrls);
   };
 
   return (
@@ -160,48 +177,35 @@ const ListingDetailsStep: React.FC<Props> = ({ onNext, onPhotosChange, initialPh
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
 
             {/* Photos */}
-            <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'flex-start' }}>
-
+            <Box>
               <Typography variant="h6" sx={{ mb: 1 }}>Photos</Typography>
-              {photoUrls.map((src, i) => (
-                <PhotoThumb
-                  key={i}
-                  src={src}
-                  onRemove={() => updatePhotos(photoUrls.filter((_, idx) => idx !== i))}
+              <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                {photoPreviewUrls.map((src, i) => (
+                  <PhotoThumb key={i} src={src} onRemove={() => handleRemovePhoto(i)} />
+                ))}
+                {photoPreviewUrls.length < MAX_PHOTOS && (
+                  <Box
+                    onClick={() => fileInputRef.current?.click()}
+                    sx={{
+                      width: 72, height: 72,
+                      border: '1.5px dashed', borderColor: 'grey.400', borderRadius: '8px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer', flexShrink: 0, transition: 'all 0.15s ease',
+                      '&:hover': { borderColor: 'primary.main', bgcolor: 'rgba(106,157,80,0.04)' },
+                    }}
+                  >
+                    <AddIcon sx={{ color: 'grey.400', fontSize: 24 }} />
+                  </Box>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  style={{ display: 'none' }}
+                  onChange={handlePhotoAdd}
                 />
-              ))}
-              {photoUrls.length < MAX_PHOTOS && (
-                <Box
-                  onClick={uploadingPhotos ? undefined : handlePhotoClick}
-                  sx={{
-                    width: 72,
-                    height: 72,
-                    border: '1.5px dashed',
-                    borderColor: uploadingPhotos ? 'grey.300' : 'grey.400',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: uploadingPhotos ? 'not-allowed' : 'pointer',
-                    flexShrink: 0,
-                    transition: 'all 0.15s ease',
-                    '&:hover': uploadingPhotos ? {} : { borderColor: 'primary.main', bgcolor: 'rgba(106,157,80,0.04)' },
-                  }}
-                >
-                  {uploadingPhotos
-                    ? <CircularProgress size={20} />
-                    : <AddIcon sx={{ color: 'grey.400', fontSize: 24 }} />
-                  }
-                </Box>
-              )}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                multiple={multiple}
-                style={{ display: 'none' }}
-                onChange={handlePhotoChange}
-              />
+              </Box>
             </Box>
 
             {/* Title */}

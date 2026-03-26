@@ -15,6 +15,7 @@ import {
 } from '@/stores/createListingStore';
 import { useState, useEffect } from 'react';
 import type { CreateListingDto, BagListing, ClubFlex, ShaftType, ClubCategory } from '@/types/listing.types';
+import { cloudinaryService } from '@/services/cloudinary.service';
 
 // ─── Helper: ordered steps based on quantities ────────────────────────────────
 
@@ -157,6 +158,8 @@ export const useListingWizard = (options: UseListingWizardOptions = {}) => {
   const [isReady, setIsReady] = useState(!isEditMode);
   const [fetchError, setFetchError] = useState(false);
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
+  const [pendingPhotoFiles, setPendingPhotoFiles] = useState<File[]>([]);
+  const [existingPhotoUrls, setExistingPhotoUrls] = useState<string[]>([]);
 
   useEffect(() => {
     if (!isEditMode || !editId) return;
@@ -167,7 +170,10 @@ export const useListingWizard = (options: UseListingWizardOptions = {}) => {
       try {
         const listing = await listingService.getListingById(editId);
         populateStoreFromListing(listing);
-        setPhotoUrls(listing.photos ?? []);
+        // setPhotoUrls(listing.photos ?? []);
+        const photos = listing.photos ?? [];
+        setPhotoUrls(photos);
+        setExistingPhotoUrls(photos);
         // Set step explicitly after populate so buildStepOrder reads correct quantities
         useCreateListingStore.getState().setCurrentStep('club-quantities');
         setIsReady(true);
@@ -218,10 +224,14 @@ export const useListingWizard = (options: UseListingWizardOptions = {}) => {
   const handleSubmit = async (): Promise<BagListing | null> => {
     setIsSubmitting(true);
     try {
-      const dto = buildCreateListingDto(useCreateListingStore.getState());
-      dto.photos = photoUrls;
-      let result: BagListing;
+      const newUrls = pendingPhotoFiles.length > 0
+        ? await cloudinaryService.uploadImages(pendingPhotoFiles)
+        : [];
 
+      const dto = buildCreateListingDto(useCreateListingStore.getState());
+      dto.photos = [...existingPhotoUrls, ...newUrls];
+
+      let result: BagListing;
       if (isEditMode && editId) {
         result = await listingService.updateListing(editId, dto);
         success('Listing updated successfully!');
@@ -240,8 +250,16 @@ export const useListingWizard = (options: UseListingWizardOptions = {}) => {
     }
   };
 
-  const saveListingDetails = (data: Parameters<typeof setListingDetails>[0]) => {
+  const saveListingDetails = (
+    data: Parameters<typeof setListingDetails>[0],
+    pendingFiles: File[],
+    survivingExistingUrls: string[],
+  ) => {
     setListingDetails(data);
+    setPendingPhotoFiles(pendingFiles);
+    setExistingPhotoUrls(survivingExistingUrls);
+    const blobPreviews = pendingFiles.map((f) => URL.createObjectURL(f));
+    setPhotoUrls([...survivingExistingUrls, ...blobPreviews]);
     goNext();
   };
 
@@ -278,7 +296,7 @@ export const useListingWizard = (options: UseListingWizardOptions = {}) => {
     isReady,
     fetchError,
     photoUrls,
-    setPhotoUrls,
+    // setPhotoUrls,
     store: store as ListingWizardState,
 
     // Navigation

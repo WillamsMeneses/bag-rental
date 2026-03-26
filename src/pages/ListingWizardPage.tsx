@@ -44,7 +44,6 @@ export const ListingWizardPage: React.FC<Props> = ({ mode }) => {
     isReady,
     fetchError,
     photoUrls,
-    setPhotoUrls,
     // wizard state
     currentStep, quantities, stepOrder, currentIndex,
     isSubmitting, goBack, goToStep,
@@ -89,7 +88,14 @@ export const ListingWizardPage: React.FC<Props> = ({ mode }) => {
   const renderStep = () => {
     switch (currentStep) {
       case 'listing-details':
-        return <ListingDetailsStep onNext={(data) => saveListingDetails(data as Parameters<typeof saveListingDetails>[0])} onPhotosChange={setPhotoUrls} initialPhotos={photoUrls} />;
+        return (
+          <ListingDetailsStep
+            onNext={(data, pendingFiles, existingUrls) =>
+              saveListingDetails(data as Parameters<typeof saveListingDetails>[0], pendingFiles, existingUrls)
+            }
+            initialPhotos={photoUrls}
+          />
+        );
       case 'club-quantities':
         return <ClubQuantitiesStep quantities={quantities} onQuantityChange={(key, value) => setQuantities({ [key]: value })} onContinue={saveQuantities} />;
       case 'driver-details':
