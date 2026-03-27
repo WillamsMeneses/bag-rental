@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { favoriteService } from '@/services/favorite.service';
 import { useToastStore } from '@/stores/toastStore';
 import type { BagListing } from '@/types/listing.types';
+import { useAuthStore } from '@/stores/authStore';
 
 interface UseFavoritesPageReturn {
   favorites: BagListing[];
@@ -15,8 +16,9 @@ interface UseFavoritesPageReturn {
   toggleFavorite: (id: string) => Promise<void>;
 }
 
-export const useFavoritesPage = (): UseFavoritesPageReturn => {
+export const useFavoritesPage = (autoFetch = true): UseFavoritesPageReturn => {
   const [favorites, setFavorites] = useState<BagListing[]>([]);
+  const { isAuthenticated } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -38,8 +40,11 @@ export const useFavoritesPage = (): UseFavoritesPageReturn => {
   };
 
   useEffect(() => {
-    fetchFavorites(page);
-  }, [page]);
+    if (autoFetch && isAuthenticated) { // 👈
+      fetchFavorites(page);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, isAuthenticated]);
 
   const toggleFavorite = async (id: string) => {
     // Remove immediately without waiting for response

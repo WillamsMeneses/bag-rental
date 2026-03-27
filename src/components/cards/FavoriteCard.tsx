@@ -16,6 +16,7 @@ import { CardHeader } from './CardHeader';
 import { CardContent } from './CardContent';
 import { CardAction } from './CardAction';
 import type { FavoriteCardProps } from './types';
+import { useAuthStore } from '@/stores/authStore';
 
 const PLACEHOLDER_IMAGE =
   'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=400&h=300&fit=crop';
@@ -34,6 +35,7 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
   onToggleFavorite,
   onClick,
 }) => {
+  const { isAuthenticated } = useAuthStore();
   const formatHand = (hand: string) => {
     return hand === 'left_handed' ? 'Left-handed' : 'Right-handed';
   };
@@ -98,24 +100,24 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
           )}
 
           {/* Favorite button (top-left) */}
-          <Box sx={{ position: 'absolute', top: 12, left: 12, zIndex: 2 }}>
-            <IconButton
-              onClick={handleFavoriteToggle}
-              sx={{
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 1)',
-                },
-              }}
-              size="small"
-            >
-              {isFavorited ? (
-                <FavoriteIcon sx={{ color: 'error.main' }} />
-              ) : (
-                <FavoriteBorderIcon />
-              )}
-            </IconButton>
-          </Box>
+          {isAuthenticated && (
+            <Box sx={{ position: 'absolute', top: 12, left: 12, zIndex: 2 }}>
+              <IconButton
+                onClick={handleFavoriteToggle}
+                sx={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  '&:hover': { backgroundColor: 'rgba(255, 255, 255, 1)' },
+                }}
+                size="small"
+              >
+                {isFavorited ? (
+                  <FavoriteIcon sx={{ color: 'error.main' }} />
+                ) : (
+                  <FavoriteBorderIcon />
+                )}
+              </IconButton>
+            </Box>
+          )}
 
           {/* Tags (top-right) */}
           <CardAction>

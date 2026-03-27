@@ -18,7 +18,7 @@ export const useAllListings = () => {
   const [isLoadingAll, setIsLoadingAll] = useState(false);
 
   // Paginación
-  const pagination = usePagination({ initialLimit: 12 });
+  const pagination = usePagination({ initialLimit: 10 });
 
   /**
    * Fetch all published listings with pagination
@@ -82,19 +82,11 @@ export const useAllListings = () => {
   };
 
   /**
-   * Auto-fetch on mount
-   */
-  useEffect(() => {
-    fetchAllListings();
-  }, []);
-
-  /**
    * Auto-fetch when page changes (for pagination component)
    */
   useEffect(() => {
-    if (pagination.page > 1) {
-      fetchAllListings();
-    }
+    fetchAllListings(pagination.page);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pagination.page]);
 
   return {

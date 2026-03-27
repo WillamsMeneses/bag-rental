@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   Box,
   Typography,
@@ -7,7 +7,7 @@ import {
   Pagination,
   Button,
 } from '@mui/material';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { FavoriteCard } from '@/components/cards';
 import { useAllListings } from '@/hooks/useAllListings';
 import AuthModal from '@/components/sections/auth/AuthModal';
@@ -17,12 +17,10 @@ import { useFavoritesPage } from '@/hooks/useFavorites';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
-  const { allListings, isLoadingAll, pagination, fetchAllListings, updateFavorite } = useAllListings();
+  const { allListings, isLoadingAll, pagination, updateFavorite } = useAllListings();
   const { toggleFavorite } = useFavoritesPage();
   const { isAuthenticated } = useAuthStore();
   const { isConnected, isLoading, isCheckingStatus, handleConnectStripe } = useStripeOnboarding();
-  const location = useLocation();
-
 
   const handleCardClick = (id: string) => {
     navigate(`/listings/${id}`);
@@ -42,11 +40,6 @@ export const HomePage: React.FC = () => {
   const handlePageChange = (_: React.ChangeEvent<unknown>, page: number) => {
     pagination.setPage(page);
   };
-
-  useEffect(() => {
-    fetchAllListings();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.key]);
 
   if (isLoadingAll && allListings.length === 0) {
     return (
