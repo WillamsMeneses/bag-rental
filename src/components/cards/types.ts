@@ -1,3 +1,5 @@
+import type { RentalCardStatus } from "@/types/rental.types";
+
 export interface BaseCardProps {
   id: string;
   title: string;
@@ -16,7 +18,7 @@ export interface ListingCardProps extends BaseCardProps {
 }
 
 export interface RentalCardProps extends BaseCardProps {
-  status: 'pending' | 'active' | 'completed';
+  status: RentalCardStatus;
   rating?: number;
   city?: string;
   state?: string;

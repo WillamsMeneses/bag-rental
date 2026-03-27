@@ -126,3 +126,37 @@ export interface CheckAvailabilityResponse {
 export interface BlockedDatesResponse {
   blockedDates: string[];
 }
+
+export const RENTAL_STATUS_LABELS: Record<RentalStatus, string> = {
+  pending_payment: 'Awaiting Payment',
+  confirmed: 'Upcoming',
+  active: 'Active',
+  completed: 'Completed',
+  cancelled_by_renter: 'Cancelled',
+  cancelled_by_owner: 'Cancelled by Owner',
+  expired: 'Expired',
+};
+
+// Mapeo a los card status visuales
+export type RentalCardStatus = 'pending' | 'upcoming' | 'active' | 'completed' | 'cancelled';
+
+export const RENTAL_CARD_STATUS: Record<RentalStatus, RentalCardStatus> = {
+  pending_payment: 'pending',
+  confirmed: 'upcoming',
+  active: 'active',
+  completed: 'completed',
+  cancelled_by_renter: 'cancelled',
+  cancelled_by_owner: 'cancelled',
+  expired: 'cancelled',
+};
+
+export const RENTAL_CARD_STATUS_CONFIG: Record<RentalCardStatus, { 
+  label: string; 
+  color: 'warning' | 'info' | 'success' | 'default' | 'error';
+}> = {
+  pending:   { label: 'Awaiting Payment', color: 'warning' },  // naranja
+  upcoming:  { label: 'Upcoming',         color: 'info' },     // azul
+  active:    { label: 'Active',           color: 'success' },  // verde
+  completed: { label: 'Completed',        color: 'default' },  // gris
+  cancelled: { label: 'Cancelled',        color: 'error' },    // rojo
+};

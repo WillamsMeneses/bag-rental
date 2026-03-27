@@ -18,15 +18,10 @@ import { CardContent } from './CardContent';
 import { CardAction } from './CardAction';
 import { CardBadge } from './CardBadge';
 import type { RentalCardProps } from './types';
+import { RENTAL_CARD_STATUS_CONFIG } from '@/types/rental.types';
 
 const PLACEHOLDER_IMAGE =
   'https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=400&h=300&fit=crop';
-
-const STATUS_STYLES: Record<string, { label: string; color: string; borderColor: string }> = {
-  pending: { label: 'Pending', color: '#f59e0b', borderColor: '#f59e0b' },
-  active: { label: 'Active', color: '#22c55e', borderColor: '#22c55e' },
-  completed: { label: 'Completed', color: '#6b7280', borderColor: '#6b7280' },
-};
 
 const formatHand = (hand: string) =>
   hand === 'left_handed' ? 'Left-handed' : 'Right-handed';
@@ -60,11 +55,9 @@ export const RentalCard: React.FC<RentalCardProps> = ({
     handleMenuClose();
   };
 
-  const statusStyle = STATUS_STYLES[status];
   const location = city && state ? `${city}, ${state}` : null;
 
   return (
-    // <Card>
     <Card onClick={onClick} sx={{ cursor: onClick ? 'pointer' : 'default' }}>
       <CardHeader>
         <Box sx={{ position: 'relative' }}>
@@ -104,22 +97,13 @@ export const RentalCard: React.FC<RentalCardProps> = ({
 
           {/* Status badge — top left */}
           <CardBadge>
-            <Box
-              sx={{
-                px: 1.5,
-                py: 0.5,
-                borderRadius: 1.5,
-                border: `1.5px solid ${statusStyle.borderColor}`,
-                backgroundColor: 'rgba(255,255,255,0.92)',
-              }}
-            >
-              <Typography
-                variant="body2"
-                fontWeight={600}
-                sx={{ color: statusStyle.color }}
-              >
-                {statusStyle.label}
-              </Typography>
+            <Box sx={{ backdropFilter: 'blur(4px)', borderRadius: 2, display: 'inline-flex' }}>
+              <Chip
+                label={RENTAL_CARD_STATUS_CONFIG[status].label}
+                color={RENTAL_CARD_STATUS_CONFIG[status].color}
+                variant="outlined"
+                size="small"
+              />
             </Box>
           </CardBadge>
 

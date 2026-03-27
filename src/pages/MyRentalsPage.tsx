@@ -1,22 +1,17 @@
 import { Box, Grid, Typography } from '@mui/material';
 import PageHeader from '@/components/ui/PageHeader';
 import { useMyRentals } from '@/hooks/useMyRentals';
-import { RentalStatus, type RentalApiResponse } from '@/types/rental.types';
+import { RENTAL_CARD_STATUS } from '@/types/rental.types';
 import { RentalCard } from '@/components/cards/RentalCard';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useRentalDetail } from '@/hooks/useRentalDetail';
 import { RentalDetailDrawer } from '@/components/sections/rentals/RentalDetailDrawer';
 
-const toCardStatus = (status: RentalApiResponse['status']): 'pending' | 'active' | 'completed' => {
-  if (status === RentalStatus.CONFIRMED || status === RentalStatus.ACTIVE) return 'active';
-  if (status === RentalStatus.COMPLETED) return 'completed';
-  return 'pending';
-};
-
 export default function MyRentalsPage() {
   const { groups, loading, error } = useMyRentals();
   const { selectedRental, openDetail, closeDetail } = useRentalDetail();
+  
 
   if (loading) return <LoadingState message="Loading rentals..." />;
   if (error) return <EmptyState title="Something went wrong" description={error} />;
@@ -46,7 +41,7 @@ export default function MyRentalsPage() {
                   hand={rental.listing.hand}
                   city={rental.listing.city ?? undefined}
                   state={rental.listing.state ?? undefined}
-                  status={toCardStatus(rental.status)}
+                  status={RENTAL_CARD_STATUS[rental.status]}
                   onReportProblem={(id) => console.log('report', id)}
                   rating={1}
                   onClick={() => openDetail(rental)}
