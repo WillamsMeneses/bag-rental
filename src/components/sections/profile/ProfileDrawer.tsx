@@ -29,7 +29,7 @@ interface ProfileDrawerProps {
 const menuItems = [
   { label: 'Notifications', icon: <NotificationsNoneIcon />, route: '/notifications', badge: 1 },
   { label: 'Inbox', icon: <ChatBubbleOutlineIcon />, route: '/inbox', badge: 2 },
-  { label: 'Favorites', icon: <FavoriteBorderIcon />, route: '/favorites' },
+  { label: 'Favorites', icon: <FavoriteBorderIcon />, route: '/my-favorites' },
   { label: 'My Listings', icon: <LabelOutlinedIcon />, route: '/my-listings' },
   { label: 'My Rentals', icon: <ShoppingBagOutlinedIcon />, route: '/my-rentals' },
 ];
