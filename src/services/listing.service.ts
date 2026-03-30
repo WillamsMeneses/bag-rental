@@ -55,7 +55,7 @@ export const listingService = {
    * Get all published listings (PUBLIC - with optional auth)
    */
   getAllListings: async (
-    params?: PaginationParams,
+    params?: PaginationParams & { city?: string; clubCategory?: string },
   ): Promise<{
     data: BagListing[];
     pagination: {
@@ -69,6 +69,9 @@ export const listingService = {
     const queryParams = new URLSearchParams();
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.city) queryParams.append('city', params.city);
+    if (params?.clubCategory) queryParams.append('clubCategory', params.clubCategory);
+
 
     const url = `/listings${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
     const response = await api.get<BackendPaginatedResponse>(url);

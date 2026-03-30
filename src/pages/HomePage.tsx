@@ -3,7 +3,6 @@ import {
   Box,
   Typography,
   Grid,
-  CircularProgress,
   Pagination,
   Button,
 } from '@mui/material';
@@ -14,6 +13,9 @@ import AuthModal from '@/components/sections/auth/AuthModal';
 import { useStripeOnboarding } from '@/hooks/useStripeOnboarding';
 import { useAuthStore } from '@/stores/authStore';
 import { useFavoritesPage } from '@/hooks/useFavorites';
+import { SearchBar } from '@/components/sections/home/SearchBar';
+import { LoadingState } from '@/components/ui/LoadingState';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -22,37 +24,38 @@ export const HomePage: React.FC = () => {
   const { isAuthenticated } = useAuthStore();
   const { isConnected, isLoading, isCheckingStatus, handleConnectStripe } = useStripeOnboarding();
 
-  const handleCardClick = (id: string) => {
-    navigate(`/listings/${id}`);
-  };
+  const isFirstLoad = isLoadingAll && allListings.length === 0;
+  const isRefetching = isLoadingAll && allListings.length > 0;
+
+  const handleCardClick = (id: string) => navigate(`/listings/${id}`);
 
   const handleToggleFavorite = (id: string) => {
     const listing = allListings.find((l) => l.id === id);
     if (!listing) return;
     const newValue = !listing.isFavorite;
     updateFavorite(id, newValue);
-    toggleFavorite(id).catch(() => {
-      // Revert on failure
-      updateFavorite(id, !newValue);
-    });
+    toggleFavorite(id).catch(() => updateFavorite(id, !newValue));
   };
 
   const handlePageChange = (_: React.ChangeEvent<unknown>, page: number) => {
     pagination.setPage(page);
   };
 
-  if (isLoadingAll && allListings.length === 0) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-        <CircularProgress />
-      </Box>
-    );
+  if (isFirstLoad) {
+    return <LoadingState />;
   }
 
   return (
     <Box>
       <Box sx={{ my: '20px' }}>
         <AuthModal />
+
+        <Box sx={{ position: 'relative' }}>
+          <Box sx={{ height: 200 }} />
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: -4, width: '100%' }}>
+            <SearchBar heroHeight={420} />
+          </Box>
+        </Box>
 
         {isAuthenticated && !isCheckingStatus && (
           <Button
@@ -62,11 +65,7 @@ export const HomePage: React.FC = () => {
             disabled={isLoading || isConnected}
             sx={{ py: 1, px: 2 }}
           >
-            {isLoading
-              ? 'Redirecting to Stripe...'
-              : isConnected
-                ? '✓ Stripe Connected'
-                : 'Connect with Stripe'}
+            {isLoading ? 'Redirecting to Stripe...' : isConnected ? '✓ Stripe Connected' : 'Connect with Stripe'}
           </Button>
         )}
       </Box>
@@ -75,21 +74,16 @@ export const HomePage: React.FC = () => {
         Browse Listings
       </Typography>
 
-      {allListings.length === 0 && !isLoadingAll && (
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          minHeight="50vh"
-        >
-          <Typography variant="h6" color="text.secondary">
-            No listings available
-          </Typography>
-        </Box>
-      )}
-
-      {allListings.length > 0 && (
+      {/* ── Loading overlay al refetch (search/paginación) ── */}
+      {isRefetching ? (
+        <LoadingState minHeight="40vh" />
+      ) : allListings.length === 0 ? (
+        <EmptyState
+          title="No listings available"
+          description="Try adjusting your search filters"
+          minHeight="40vh"
+        />
+      ) : (
         <>
           <Grid container spacing={3}>
             {allListings.map((listing) => (
