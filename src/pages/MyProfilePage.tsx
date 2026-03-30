@@ -1,4 +1,4 @@
-import { useEffect} from 'react';
+import { useEffect } from 'react';
 import {
   Box,
   Grid,
@@ -21,6 +21,8 @@ import { profileSchema, type ProfileFormData } from '@/schemas/profileSchema';
 import { PhoneInputField } from '@/components/sections/profile/PhoneInputField';
 
 import { useImageUpload } from '@/hooks/useImageUpload';
+import { useAuthStore } from '@/stores/authStore';
+import { useStripeOnboarding } from '@/hooks/useStripeOnboarding';
 
 const FieldLabel = ({ children }: { children: React.ReactNode }) => (
   <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
@@ -30,6 +32,8 @@ const FieldLabel = ({ children }: { children: React.ReactNode }) => (
 
 export default function MyProfilePage() {
   const { profile, loading, saving, updateProfile } = useProfile();
+  const { isAuthenticated } = useAuthStore();
+  const { isConnected, isLoading, isCheckingStatus, handleConnectStripe } = useStripeOnboarding();
   const { fileInputRef, uploading: uploadingAvatar, handleClick: handleAvatarClick, handleChange: handleAvatarChange, previewUrl: avatarPreview, flush: flushAvatar } =
     useImageUpload({ mode: 'pending' });
 
@@ -163,6 +167,17 @@ export default function MyProfilePage() {
                   )}
                 />
               </Box>
+              {isAuthenticated && !isCheckingStatus && (
+                <Button
+                  variant={isConnected ? 'contained' : 'contained'}
+                  color={isConnected ? 'success' : 'primary'}
+                  onClick={isConnected ? undefined : handleConnectStripe}
+                  disabled={isLoading || isConnected}
+                  sx={{ py: 1, px: 2 }}
+                >
+                  {isLoading ? 'Redirecting to Stripe...' : isConnected ? '✓ Stripe Connected' : 'Connect with Stripe'}
+                </Button>
+              )}
             </Box>
           </Grid>
 

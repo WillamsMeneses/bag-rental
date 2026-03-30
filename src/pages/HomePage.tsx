@@ -4,14 +4,11 @@ import {
   Typography,
   Grid,
   Pagination,
-  Button,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { FavoriteCard } from '@/components/cards';
 import { useAllListings } from '@/hooks/useAllListings';
 import AuthModal from '@/components/sections/auth/AuthModal';
-import { useStripeOnboarding } from '@/hooks/useStripeOnboarding';
-import { useAuthStore } from '@/stores/authStore';
 import { useFavoritesPage } from '@/hooks/useFavorites';
 import { SearchBar } from '@/components/sections/home/SearchBar';
 import { LoadingState } from '@/components/ui/LoadingState';
@@ -21,9 +18,7 @@ export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { allListings, isLoadingAll, pagination, updateFavorite } = useAllListings();
   const { toggleFavorite } = useFavoritesPage();
-  const { isAuthenticated } = useAuthStore();
-  const { isConnected, isLoading, isCheckingStatus, handleConnectStripe } = useStripeOnboarding();
-
+  
   const isFirstLoad = isLoadingAll && allListings.length === 0;
   const isRefetching = isLoadingAll && allListings.length > 0;
 
@@ -52,25 +47,10 @@ export const HomePage: React.FC = () => {
 
         <Box sx={{ position: 'relative' }}>
           <Box sx={{ height: 200 }} />
-          {/* <Box sx={{ display: 'flex', justifyContent: 'center', mt: -4, width: '100%' }}>
-            <SearchBar heroHeight={420} />
-          </Box> */}
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: -4, width: '100%', px: 2 }}>
             <SearchBar heroHeight={120} /> {/* ajustá heroHeight a tu hero real */}
           </Box>
         </Box>
-
-        {isAuthenticated && !isCheckingStatus && (
-          <Button
-            variant={isConnected ? 'outlined' : 'contained'}
-            color={isConnected ? 'success' : 'primary'}
-            onClick={isConnected ? undefined : handleConnectStripe}
-            disabled={isLoading || isConnected}
-            sx={{ py: 1, px: 2 }}
-          >
-            {isLoading ? 'Redirecting to Stripe...' : isConnected ? '✓ Stripe Connected' : 'Connect with Stripe'}
-          </Button>
-        )}
       </Box>
 
       <Typography variant="h4" component="h1" fontWeight={700} sx={{ mb: 4 }}>
