@@ -1,10 +1,24 @@
-import { AppBar, Toolbar, Box, IconButton, Avatar, Typography } from '@mui/material';
+import { AppBar, Toolbar, Box, Typography } from '@mui/material';
 import HoverLink from './HoverLink';
 import { ProfileDrawer } from '../sections/profile/ProfileDrawer';
 import { useProfileDrawer } from '@/hooks/useProfileDrawer';
+import UserMenuButton from '../sections/home/UserMenuButton';
+import { useAuthStore } from '@/stores/authStore';
+import { useAuthModal } from '@/hooks/useAuthModal';
 
 function HomeNavbar() {
   const { open, openDrawer, closeDrawer } = useProfileDrawer();
+  const { isAuthenticated } = useAuthStore();
+
+  const { openModal } = useAuthModal();
+
+  const handleUserMenuClick = () => {
+    if (isAuthenticated) {
+      openDrawer();
+    } else {
+      openModal(); // 👈
+    }
+  };
   return (
     <AppBar position="static" sx={{ backgroundColor: 'green' }}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
@@ -35,17 +49,13 @@ function HomeNavbar() {
 
         {/* Profile Button */}
         <Box>
-          <IconButton
-            onClick={openDrawer}
-            sx={{ backgroundColor: 'white', '&:hover': { backgroundColor: '#f5f5f5' } }}
-          >
-            <Avatar sx={{ width: 32, height: 32 }} />
-          </IconButton>
-
+          <UserMenuButton
+            onClick={handleUserMenuClick}  // 👈
+          />
           <ProfileDrawer
             open={open}
             onClose={closeDrawer}
-            username="JohnDoe" // reemplazá con el dato real del user
+            username="JohnDoe"
           />
         </Box>
       </Toolbar>

@@ -39,6 +39,10 @@ api.interceptors.response.use(
 
       const refreshToken = useAuthStore.getState().refreshToken;
 
+      if (isPublicEndpoint(originalRequest.url || '')) {
+        return Promise.reject(error);
+      }
+
       if (refreshToken) {
         try {
 

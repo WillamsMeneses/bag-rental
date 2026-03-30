@@ -59,6 +59,7 @@ export const useAuth = () => {
       navigate('/');
     } catch (err) {
       const axiosError = err as AxiosError<ErrorResponse>;
+      console.log("entra por error")
       error(axiosError.response?.data?.message || 'Invalid credentials');
     } finally {
       setIsLoading(false);

@@ -1,6 +1,5 @@
 import { GenericDialog } from '@/components/ui/GenericDialog';
 import { Box, Button, Typography } from '@mui/material';
-import { useState } from 'react';
 import AuthTitleModal from './AuthTitleModal';
 import ArrowRightIcon from '@/components/icons/ArrowRightIcon';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,18 +7,18 @@ import AuthEmailForm from './AuthEmailForm';
 import AuthLoginForm from './AuthLoginForm';
 import AuthRegisterForm from './AuthRegisterForm';
 import HoverLink from '@/components/ui/HoverLink';
+import { useAuthModal } from '@/hooks/useAuthModal';
 
 const AuthModal = () => {
-  const [open, setOpen] = useState(false);
+  const { open, closeModal } = useAuthModal();
   const { currentStep, isLoading, resetAuth } = useAuth();
 
-  const handleOpen = () => setOpen(true);
-
   const handleClose = () => {
-    setOpen(false);
-    // Resetear el estado cuando se cierra el modal
-    setTimeout(() => resetAuth(), 300); // Delay para que la animación del modal termine
+    console.log('🔒 AuthModal handleClose called');
+    closeModal();
+    setTimeout(() => resetAuth(), 300);
   };
+
 
   // Determinar qué formulario mostrar
   const renderForm = () => {
@@ -53,10 +52,6 @@ const AuthModal = () => {
 
   return (
     <>
-      <Button variant="contained" onClick={handleOpen}>
-        Iniciar Sesión
-      </Button>
-
       <GenericDialog
         open={open}
         onClose={handleClose}
