@@ -52,8 +52,11 @@ export const HomePage: React.FC = () => {
 
         <Box sx={{ position: 'relative' }}>
           <Box sx={{ height: 200 }} />
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: -4, width: '100%' }}>
+          {/* <Box sx={{ display: 'flex', justifyContent: 'center', mt: -4, width: '100%' }}>
             <SearchBar heroHeight={420} />
+          </Box> */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: -4, width: '100%', px: 2 }}>
+            <SearchBar heroHeight={120} /> {/* ajustá heroHeight a tu hero real */}
           </Box>
         </Box>
 
