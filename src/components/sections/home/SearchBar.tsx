@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Box,
   Paper,
@@ -16,6 +16,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchStore } from '@/stores/searchStore';
 import { ClubCategory } from '@/types/listing.types';
+import { useScrollSticky } from '@/hooks/useScrollSticky';
 
 const CA_CITIES = [
   'Los Angeles', 'San Francisco', 'San Diego', 'San Jose', 'Sacramento',
@@ -47,13 +48,9 @@ export const SearchBar = ({ heroHeight = 400 }: SearchBarProps) => {
   const [citySuggestions, setCitySuggestions] = useState<string[]>(CA_CITIES);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [showGearOptions, setShowGearOptions] = useState(false);
-  const [isSticky, setIsSticky] = useState(false);
+  const isSticky = useScrollSticky(heroHeight - 80);
 
-  useEffect(() => {
-    const handleScroll = () => setIsSticky(window.scrollY > heroHeight - 80);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [heroHeight]);
+
 
   const handleCityChange = (value: string) => {
     setCityInput(value);
@@ -87,15 +84,17 @@ export const SearchBar = ({ heroHeight = 400 }: SearchBarProps) => {
         sx={{
           position: isSticky ? 'fixed' : 'relative',
           top: 0,
-          left: 0,
+          left: isSticky ? '50%' : 0,
           right: 0,
-          zIndex: isSticky ? 1100 : 1,
+          zIndex: 1100,
           display: 'flex',
           justifyContent: 'center',
-          py: isSticky ? 1.5 : 0,
-          bgcolor: isSticky ? 'background.paper' : 'transparent',
+          py: isSticky ? 0.5 : 0,
+          transform: isSticky ? 'translateX(-50%)' : 'none',
+          bgcolor: isSticky ? 'transparent' : 'transparent',
           boxShadow: isSticky ? '0 1px 8px rgba(0,0,0,0.06)' : 'none',
           transition: 'background-color 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease',
+          width: 'fit-content'
         }}
       >
         {/* ── framer anima solo el width ── */}

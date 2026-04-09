@@ -10,15 +10,15 @@ import { FavoriteCard } from '@/components/cards';
 import { useAllListings } from '@/hooks/useAllListings';
 import AuthModal from '@/components/sections/auth/AuthModal';
 import { useFavoritesPage } from '@/hooks/useFavorites';
-import { SearchBar } from '@/components/sections/home/SearchBar';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { HeroSection } from '@/components/sections/home/HeroSection';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { allListings, isLoadingAll, pagination, updateFavorite } = useAllListings();
   const { toggleFavorite } = useFavoritesPage();
-  
+
   const isFirstLoad = isLoadingAll && allListings.length === 0;
   const isRefetching = isLoadingAll && allListings.length > 0;
 
@@ -42,18 +42,12 @@ export const HomePage: React.FC = () => {
 
   return (
     <Box>
-      <Box sx={{ my: '20px' }}>
+      <Box>
         <AuthModal />
-
-        <Box sx={{ position: 'relative' }}>
-          <Box sx={{ height: 200 }} />
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: -4, width: '100%', px: 2 }}>
-            <SearchBar heroHeight={120} /> {/* ajustá heroHeight a tu hero real */}
-          </Box>
-        </Box>
+        <HeroSection />
       </Box>
 
-      <Typography variant="h4" component="h1" fontWeight={700} sx={{ mb: 4 }}>
+      <Typography variant="h4" component="h1" fontWeight={700} sx={{ mb: 4, mt: 6}}>
         Browse Listings
       </Typography>
 
