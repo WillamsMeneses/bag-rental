@@ -18,6 +18,7 @@ import { PaymentReturnPage } from './pages/PaymentReturnPage';
 import MyRentalsPage from './pages/MyRentalsPage';
 import MyProfilePage from './pages/MyProfilePage';
 import MyFavoritesPage from './pages/MyFavoritesPage';
+import RentalRequestDetailPage from './pages/RentalRequest';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
             <Route path="/my-rentals" element={<MyRentalsPage />} />
             <Route path="/my-profile" element={<MyProfilePage />} />
             <Route path="/my-favorites" element={<MyFavoritesPage />} />
+            <Route path="/rental-requests/:id" element={<RentalRequestDetailPage />} />
           </Route>
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
         </Routes>

@@ -19,11 +19,12 @@ export const PaymentReturnPage = () => {
 
     const checkStatus = async () => {
       try {
-        const rental = await rentalService.getRentalById(rentalId);
-        if (rental.status === 'confirmed') {
+        // const rental = await rentalService.getRentalById(rentalId);
+        const { status } = await rentalService.getRentalStatus(rentalId);
+        if (status === 'confirmed') {
           sessionStorage.removeItem('payment_return_url');
           navigate(returnUrl, { state: { paymentResult: 'success' } });
-        } else if (rental.status === 'expired') {
+        } else if (status === 'expired') {
           sessionStorage.removeItem('payment_return_url');
           navigate(returnUrl, { state: { paymentResult: 'failed' } });
         } else if (attempts < maxAttempts) {

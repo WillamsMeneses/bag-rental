@@ -14,8 +14,10 @@ export type RentalStatus = typeof RentalStatus[keyof typeof RentalStatus];
 export interface Rental {
   id: string;
   listingId: string;
+  listing: RentalListingApiResponse;
   renterId: string;
   ownerId: string;
+  owner: RentalOwnerApiResponse; 
   startDate: string;
   endDate: string;
   totalDays: number;
@@ -34,6 +36,13 @@ export interface Rental {
   expiresAt: string | null;
   createdAt: string;
   updatedAt: string;
+  commissionFee?: number;
+  commissionFeePercent?: number;
+  totalYouReceive?: number;
+  canDeny?: boolean;
+  canAccept?: boolean;
+  formattedStartDate?: string;
+  formattedEndDate?: string;
 }
 
 // Shape real del listing embebido en el response de rentals

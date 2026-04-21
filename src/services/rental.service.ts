@@ -1,5 +1,6 @@
 import type { BlockedDatesResponse, CheckAvailabilityDto, CheckAvailabilityResponse, CreateRentalDto, PaginatedRentals, Rental } from '@/types/rental.types';
 import { api } from './api';
+import type { RentalRequestDetail, RentalStatusResponse } from '@/types/rental-request.types';
 
 interface BackendResponse<T> {
   success: boolean;
@@ -67,8 +68,23 @@ export const rentalService = {
     return response.data.data;
   },
 
-  getRentalById: async (rentalId: string): Promise<Rental> => {
-    const response = await api.get<BackendResponse<Rental>>(`/rentals/${rentalId}`);
+  // getRentalById: async (rentalId: string): Promise<Rental> => {
+  //   const response = await api.get<BackendResponse<Rental>>(`/rentals/${rentalId}`);
+  //   return response.data.data;
+  // },
+
+  getRentalStatus: async (rentalId: string): Promise<RentalStatusResponse> => {
+    const response = await api.get<BackendResponse<RentalStatusResponse>>(
+      `/rentals/${rentalId}/status`
+    );
+    return response.data.data;
+  },
+
+  // ✅ NUEVO: Para el detalle del rental request (owner view)
+  getRentalRequestById: async (rentalId: string): Promise<RentalRequestDetail> => {
+    const response = await api.get<BackendResponse<RentalRequestDetail>>(
+      `/rentals/requests/${rentalId}`
+    );
     return response.data.data;
   },
 

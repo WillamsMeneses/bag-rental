@@ -6,7 +6,7 @@ export interface UserProfile {
   lastName: string | null;
   birthday: string | null;
   phone: string | null;
-  country: string | null;
+  location: string | null;
   avatarUrl: string | null;
   stripeAccountId: string | null;
   emailVerified: boolean;
@@ -18,6 +18,6 @@ export interface UpdateProfileDto {
   lastName?: string;
   birthday?: string;
   phone?: string;
-  country?: string;
+  location?: string;
   avatarUrl?: string;
 }

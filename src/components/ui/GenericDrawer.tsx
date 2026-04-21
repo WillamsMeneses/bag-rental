@@ -1,5 +1,7 @@
 import { Drawer, Box, IconButton, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
 
 interface GenericDrawerProps {
   open: boolean;
@@ -9,6 +11,7 @@ interface GenericDrawerProps {
   actions?: React.ReactNode;
   width?: number | string;
   headerSx?: object;
+  closeMode?: 'close' | 'back';
 }
 
 export const GenericDrawer = ({
@@ -18,21 +21,31 @@ export const GenericDrawer = ({
   children,
   actions,
   width = 420,
-  headerSx
+  headerSx,
+  closeMode
 }: GenericDrawerProps) => {
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
       <Box sx={{ width, display: 'flex', flexDirection: 'column', height: '100%' }}>
         {/* Header */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 3, pt: 3, pb: 2, ...headerSx  }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: closeMode === 'back' ? 'flex-start' : 'space-between', px: 3, pt: 3, pb: 2, ...headerSx }}>
+          {closeMode === 'back' && (
+            <IconButton onClick={onClose} size="small">
+              <ArrowBackIcon sx={{ width: 24, height: 24, color: 'text.primary' }} />
+            </IconButton>
+          )}
+
           {title ? (
             typeof title === 'string'
               ? <Typography variant="h3" fontWeight={600}>{title}</Typography>
               : title
           ) : <Box />}
-          <IconButton onClick={onClose} size="small">
-            <CloseIcon fontSize="small" />
-          </IconButton>
+
+          {closeMode === 'close' && (
+            <IconButton onClick={onClose} size="small">
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          )}
         </Box>
 
         {/* Content */}

@@ -44,7 +44,7 @@ export default function MyProfilePage() {
       lastName: '',
       birthday: '',
       phone: '',
-      country: '',
+      location: '',
     },
   });
 
@@ -55,7 +55,7 @@ export default function MyProfilePage() {
         lastName: profile.lastName ?? '',
         birthday: profile.birthday ?? '',
         phone: profile.phone ?? '',
-        country: profile.country ?? '',
+        location: profile.location ?? '',
       });
     }
   }, [profile, reset]);
@@ -160,7 +160,7 @@ export default function MyProfilePage() {
               <Box>
                 <FieldLabel>Location</FieldLabel>
                 <Controller
-                  name="country"
+                  name="location"
                   control={control}
                   render={({ field }) => (
                     <TextField {...field} fullWidth size="small" placeholder="e.g. Los Angeles, CA" />
