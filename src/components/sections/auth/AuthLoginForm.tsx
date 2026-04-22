@@ -1,8 +1,10 @@
 import { useAuth } from '@/hooks/useAuth';
 import { loginSchema, type LoginFormData } from '@/schemas/authSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Box, TextField, Typography } from '@mui/material';
+import { Box, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { useState } from 'react';
 
 interface AuthLoginFormProps {
   onSuccess?: () => void;
@@ -10,6 +12,7 @@ interface AuthLoginFormProps {
 
 const AuthLoginForm = ({ onSuccess }: AuthLoginFormProps) => {
   const { handleLogin, isLoading } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     control,
@@ -47,19 +50,40 @@ const AuthLoginForm = ({ onSuccess }: AuthLoginFormProps) => {
               name="password"
               control={control}
               render={({ field }) => (
+                // <TextField
+                //   {...field}
+                //   type="password"
+                //   error={!!errors.password}
+                //   helperText={errors.password?.message}
+                //   fullWidth
+                //   disabled={isLoading}
+                // />
+
                 <TextField
                   {...field}
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   error={!!errors.password}
                   helperText={errors.password?.message}
                   fullWidth
                   disabled={isLoading}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               )}
             />
           </Box>
         </form>
-       
+
       </Box>
 
     </>
