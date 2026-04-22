@@ -10,4 +10,5 @@ export const PUBLIC_ENDPOINTS = [
   '/auth/check-email',
   '/auth/register',
   '/auth/login',
+  '/auth/refresh',
 ];

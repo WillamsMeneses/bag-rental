@@ -37,9 +37,13 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      const refreshToken = useAuthStore.getState().refreshToken;
-
       if (isPublicEndpoint(originalRequest.url || '')) {
+        return Promise.reject(error);
+      }
+
+      const { accessToken, refreshToken } = useAuthStore.getState();
+
+      if (!accessToken) {
         return Promise.reject(error);
       }
 
