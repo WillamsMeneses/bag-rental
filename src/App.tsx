@@ -18,7 +18,7 @@ import { PaymentReturnPage } from './pages/PaymentReturnPage';
 import MyRentalsPage from './pages/MyRentalsPage';
 import MyProfilePage from './pages/MyProfilePage';
 import MyFavoritesPage from './pages/MyFavoritesPage';
-import RentalRequestDetailPage from './pages/RentalRequest';
+import RentalRequestDetailPage from './pages/RentalRequestDetailPage';
 
 function App() {
   return (
