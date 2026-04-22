@@ -68,11 +68,6 @@ export const rentalService = {
     return response.data.data;
   },
 
-  // getRentalById: async (rentalId: string): Promise<Rental> => {
-  //   const response = await api.get<BackendResponse<Rental>>(`/rentals/${rentalId}`);
-  //   return response.data.data;
-  // },
-
   getRentalStatus: async (rentalId: string): Promise<RentalStatusResponse> => {
     const response = await api.get<BackendResponse<RentalStatusResponse>>(
       `/rentals/${rentalId}/status`
@@ -80,7 +75,6 @@ export const rentalService = {
     return response.data.data;
   },
 
-  // ✅ NUEVO: Para el detalle del rental request (owner view)
   getRentalRequestById: async (rentalId: string): Promise<RentalRequestDetail> => {
     const response = await api.get<BackendResponse<RentalRequestDetail>>(
       `/rentals/requests/${rentalId}`
@@ -92,6 +86,14 @@ export const rentalService = {
     const response = await api.get<{ success: boolean; data: PaginatedRentals }>(
       '/rentals/my-rentals',
       { params: { page, limit } },
+    );
+    return response.data.data;
+  },
+
+  cancelByOwner: async (rentalId: string, reason?: string): Promise<Rental> => {
+    const response = await api.patch<BackendResponse<Rental>>(
+      `/rentals/${rentalId}/cancel-by-owner`,
+      { reason },
     );
     return response.data.data;
   },

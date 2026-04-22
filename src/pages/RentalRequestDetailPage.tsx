@@ -18,16 +18,15 @@ import { ClubsTable } from '@/components/sections/listing/ClubsTable';
 
 export default function RentalRequestDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { rentalRequest, loading, error } = useRentalRequestDetail(id);
+  const { rentalRequest, loading, error, isDenying, denyRental } = useRentalRequestDetail(id);
+
+  const handleDeny = async () => {
+    await denyRental();
+  };
 
   const handleAccept = async () => {
     console.log('Accept:', id);
     // TODO: PATCH /rentals/:id/accept
-  };
-
-  const handleDeny = async () => {
-    console.log('Deny:', id);
-    // TODO: PATCH /rentals/:id/deny
   };
 
   if (loading) return <LoadingState message="Loading rental request..." />;
@@ -219,9 +218,10 @@ export default function RentalRequestDetailPage() {
                   color="success"
                   fullWidth
                   onClick={handleDeny}
+                  disabled={isDenying}
                   sx={{ py: 1.5, fontWeight: 600 }}
                 >
-                  Deny
+                  {isDenying ? 'Denying...' : 'Deny'}
                 </Button>
               )}
               {rentalRequest.canAccept && (

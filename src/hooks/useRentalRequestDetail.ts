@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { rentalService } from '@/services/rental.service';
 import type { RentalRequestDetail } from '@/types/rental-request.types';
 
@@ -6,13 +6,16 @@ interface UseRentalRequestDetailReturn {
   rentalRequest: RentalRequestDetail | null;
   loading: boolean;
   error: string | null;
+  isDenying: boolean;
   refetch: () => void;
+  denyRental: (reason?: string) => Promise<void>;
 }
 
 export const useRentalRequestDetail = (id?: string): UseRentalRequestDetailReturn => {
   const [rentalRequest, setRentalRequest] = useState<RentalRequestDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isDenying, setIsDenying] = useState(false);
   const [tick, setTick] = useState(0);
 
   const refetch = () => setTick((t) => t + 1);
@@ -39,5 +42,18 @@ export const useRentalRequestDetail = (id?: string): UseRentalRequestDetailRetur
     fetch();
   }, [id, tick]);
 
-  return { rentalRequest, loading, error, refetch };
+  const denyRental = useCallback(async (reason?: string) => {
+    if (!id) return;
+    try {
+      setIsDenying(true);
+      await rentalService.cancelByOwner(id, reason);
+      refetch();
+    } catch {
+      setError('Failed to deny rental request');
+    } finally {
+      setIsDenying(false);
+    }
+  }, [id]);
+
+  return { rentalRequest, loading, error, isDenying, refetch, denyRental };
 };
