@@ -5,18 +5,29 @@ import { useNavigate } from 'react-router-dom';
 
 interface NotificationItemProps {
   notification: NotificationApiResponse;
+  onMarkAsRead: (id: string) => Promise<void>;
 }
 
-export const NotificationItem = ({ notification }: NotificationItemProps) => {
+export const NotificationItem = ({ notification, onMarkAsRead }: NotificationItemProps) => {
   const isUnread = !notification.isRead;
   const navigate = useNavigate();
 
-  const handleViewRequest = () => {
+  // Clickeable solo si hay rental y startDate es futuro
+  const isActive =
+    !!notification.rental?.startDate &&
+    new Date() < new Date(notification.rental.startDate);
+
+  const handleClick = async () => {
+    if (!isActive) return;
+    if (isUnread) await onMarkAsRead(notification.id);
     navigate(`/rental-requests/${notification.rentalId}`);
   };
 
+  const borderColor = isUnread ? 'primary.main' : 'grey.400';
+
   return (
     <Box
+      onClick={handleClick}
       sx={{
         display: 'flex',
         gap: 1.5,
@@ -24,22 +35,26 @@ export const NotificationItem = ({ notification }: NotificationItemProps) => {
         borderBottom: '1px solid',
         borderColor: 'grey.300',
         position: 'relative',
-        // Green left border for unread
-        '&::before': isUnread
+        cursor: isActive ? 'pointer' : 'default',
+        transition: 'background-color 0.15s ease',
+        ...(isActive && {
+          '&:hover': { backgroundColor: 'grey.50' },
+        }),
+        // Borde izquierdo: verde si unread, gris si read — solo si isActive
+        '&::before': isActive
           ? {
-            content: '""',
-            position: 'absolute',
-            left: -24, // extends outside padding
-            top: 0,
-            bottom: 0,
-            width: 4,
-            backgroundColor: 'primary.main',
-            borderRadius: '0 2px 2px 0',
-          }
+              content: '""',
+              position: 'absolute',
+              left: -24,
+              top: 0,
+              bottom: 0,
+              width: 4,
+              backgroundColor: borderColor,
+              borderRadius: '0 2px 2px 0',
+            }
           : {},
       }}
     >
-      {/* Avatar */}
       <Avatar
         src={
           (notification.metadata?.renterAvatarUrl as string | undefined) ?? undefined
@@ -47,20 +62,22 @@ export const NotificationItem = ({ notification }: NotificationItemProps) => {
         sx={{ width: 44, height: 44, flexShrink: 0 }}
       />
 
-      {/* Content */}
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography variant="body2" color="text.primary" sx={{ mb: 0.5 }}>
           {notification.message}
         </Typography>
 
-        {/* View request button — only for unread */}
-        {isUnread && (
+        {/* Botón solo para unread activas */}
+        {isUnread && isActive && (
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 0.5 }}>
             <Button
               variant="contained"
               color="primary"
               size="small"
-              onClick={handleViewRequest}
+              onClick={(e) => {
+                e.stopPropagation(); // evita doble trigger con el box
+                handleClick();
+              }}
               sx={{ px: 2, py: 0.5, fontSize: '13px' }}
             >
               View request
@@ -68,7 +85,11 @@ export const NotificationItem = ({ notification }: NotificationItemProps) => {
           </Box>
         )}
 
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'right' }}>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ display: 'block', textAlign: 'right' }}
+        >
           {formatNotificationDate(notification.createdAt)}
         </Typography>
       </Box>

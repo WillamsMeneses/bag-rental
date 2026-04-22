@@ -1,19 +1,20 @@
 import { Box, Typography, Button, CircularProgress } from '@mui/material';
 import { GenericDrawer } from '@/components/ui/GenericDrawer';
 import { NotificationItem } from './NotificationItem';
-import { useNotifications } from '@/hooks/useNotifications';
+import type { useNotifications } from '@/hooks/useNotifications';
 
 interface NotificationsDrawerProps {
   open: boolean;
   onClose: () => void;
+  notificationsData: ReturnType<typeof useNotifications>;
 }
 
 export const NotificationsDrawer = ({
   open,
   onClose,
+  notificationsData,
 }: NotificationsDrawerProps) => {
-  const { notifications, unreadCount, loading, error, markAllAsRead } =
-    useNotifications();
+  const { notifications, unreadCount, loading, error, markAllAsRead, markAsRead } = notificationsData;
 
   return (
     <GenericDrawer
@@ -23,7 +24,6 @@ export const NotificationsDrawer = ({
       width={400}
       closeMode='close'
     >
-      {/* Header actions */}
       {unreadCount > 0 && (
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
           <Button
@@ -37,7 +37,6 @@ export const NotificationsDrawer = ({
         </Box>
       )}
 
-      {/* States */}
       {loading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
           <CircularProgress size={32} color="primary" />
@@ -56,13 +55,13 @@ export const NotificationsDrawer = ({
         </Typography>
       )}
 
-      {/* List */}
       {!loading && !error && (
         <Box>
           {notifications.map((notification) => (
             <NotificationItem
               key={notification.id}
               notification={notification}
+              onMarkAsRead={markAsRead}
             />
           ))}
         </Box>

@@ -1,13 +1,7 @@
 import { useState } from 'react';
 import {
-  Box,
-  Avatar,
-  Typography,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Badge,
+  Box, Avatar, Typography, List, ListItemButton,
+  ListItemIcon, ListItemText, Badge,
 } from '@mui/material';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
@@ -32,12 +26,12 @@ interface ProfileDrawerProps {
 export const ProfileDrawer = ({ open, onClose, username = 'Username' }: ProfileDrawerProps) => {
   const navigate = useNavigate();
   const logout = useAuthStore((s) => s.logout);
-  
-  // State for notifications drawer
+
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  
-  // Get real unread count from API
-  const { unreadCount, refresh: refreshNotifications } = useNotifications();
+
+  // Única instancia — se comparte con NotificationsDrawer via props
+  const notificationsData = useNotifications();
+  const { unreadCount } = notificationsData;
 
   const handleNavigate = (route: string) => {
     navigate(route);
@@ -52,8 +46,7 @@ export const ProfileDrawer = ({ open, onClose, username = 'Username' }: ProfileD
 
   const handleOpenNotifications = () => {
     setNotificationsOpen(true);
-    // Refresh notifications when opening to get latest count
-    refreshNotifications();
+    notificationsData.refresh();
   };
 
   const headerTitle = (
@@ -76,25 +69,20 @@ export const ProfileDrawer = ({ open, onClose, username = 'Username' }: ProfileD
 
   return (
     <>
-      {/* Profile Drawer */}
-      <GenericDrawer 
-        open={open} 
-        onClose={onClose} 
-        title={headerTitle} 
-        width={360} 
+      <GenericDrawer
+        open={open}
+        onClose={onClose}
+        title={headerTitle}
+        width={360}
         headerSx={{ backgroundColor: '#f2f2f2' }}
       >
         <Box sx={{ mt: 1, mx: -2 }}>
           <List disablePadding>
-            {/* Notifications item with real badge */}
             <ListItemButton
               onClick={handleOpenNotifications}
               sx={{
-                py: 2,
-                px: 2,
-                borderRadius: 2,
-                border: '1px solid #e8e8e8',
-                mb: 1.5,
+                py: 2, px: 2, borderRadius: 2,
+                border: '1px solid #e8e8e8', mb: 1.5,
                 '&:hover': { backgroundColor: '#f9f9f9' },
               }}
             >
@@ -103,11 +91,8 @@ export const ProfileDrawer = ({ open, onClose, username = 'Username' }: ProfileD
                   badgeContent={unreadCount > 0 ? unreadCount : null}
                   sx={{
                     '& .MuiBadge-badge': {
-                      backgroundColor: '#e53935',
-                      color: 'white',
-                      fontSize: 11,
-                      minWidth: 18,
-                      height: 18,
+                      backgroundColor: '#e53935', color: 'white',
+                      fontSize: 11, minWidth: 18, height: 18,
                     },
                   }}
                 >
@@ -121,7 +106,6 @@ export const ProfileDrawer = ({ open, onClose, username = 'Username' }: ProfileD
               <Typography sx={{ color: GREEN, fontSize: 18, lineHeight: 1 }}>→</Typography>
             </ListItemButton>
 
-            {/* Other menu items */}
             {[
               { label: 'Inbox', icon: <ChatBubbleOutlineIcon />, route: '/inbox', badge: 2 },
               { label: 'Favorites', icon: <FavoriteBorderIcon />, route: '/my-favorites' },
@@ -132,11 +116,8 @@ export const ProfileDrawer = ({ open, onClose, username = 'Username' }: ProfileD
                 <ListItemButton
                   onClick={() => handleNavigate(item.route)}
                   sx={{
-                    py: 2,
-                    px: 2,
-                    borderRadius: 2,
-                    border: '1px solid #e8e8e8',
-                    mb: 1.5,
+                    py: 2, px: 2, borderRadius: 2,
+                    border: '1px solid #e8e8e8', mb: 1.5,
                     '&:hover': { backgroundColor: '#f9f9f9' },
                   }}
                 >
@@ -146,19 +127,14 @@ export const ProfileDrawer = ({ open, onClose, username = 'Username' }: ProfileD
                         badgeContent={item.badge}
                         sx={{
                           '& .MuiBadge-badge': {
-                            backgroundColor: '#e53935',
-                            color: 'white',
-                            fontSize: 11,
-                            minWidth: 18,
-                            height: 18,
+                            backgroundColor: '#e53935', color: 'white',
+                            fontSize: 11, minWidth: 18, height: 18,
                           },
                         }}
                       >
                         {item.icon}
                       </Badge>
-                    ) : (
-                      item.icon
-                    )}
+                    ) : item.icon}
                   </ListItemIcon>
                   <ListItemText
                     primary={item.label}
@@ -173,10 +149,7 @@ export const ProfileDrawer = ({ open, onClose, username = 'Username' }: ProfileD
           <ListItemButton
             onClick={handleLogout}
             sx={{
-              py: 2,
-              px: 2,
-              borderRadius: 2,
-              mt: 0.5,
+              py: 2, px: 2, borderRadius: 2, mt: 0.5,
               border: '1px solid #e8e8e8',
               '&:hover': { backgroundColor: '#f9f9f9' },
             }}
@@ -192,10 +165,11 @@ export const ProfileDrawer = ({ open, onClose, username = 'Username' }: ProfileD
         </Box>
       </GenericDrawer>
 
-      {/* Notifications Drawer */}
+      {/* Pasa la instancia compartida como props */}
       <NotificationsDrawer
         open={notificationsOpen}
         onClose={() => setNotificationsOpen(false)}
+        notificationsData={notificationsData}
       />
     </>
   );
